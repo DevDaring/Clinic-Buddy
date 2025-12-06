@@ -1,0 +1,5 @@
+trial_id,trial_name,phase,therapeutic_area,drug_name,indication,enrollment,duration_days,status,success,dropout_rate,adverse_events,cost_usd,start_date,completion_date
+NCT04521789,Study of ImmunoX-101 in Advanced Melanoma,Phase II,Oncology,ImmunoX-101,Advanced Melanoma,156,548,Completed,TRUE,0.18,23,6850000,2022-03-15,2023-08-10
+NCT04389654,Cardioprotect Trial for Heart Failure,Phase III,Cardiology,CardioProtect-200,Chronic Heart Failure,324,912,Completed,TRUE,0.22,41,18500000,2021-06-01,2024-01-15
+NCT04198765,NeuroRegen Phase I Safety Study,Phase I,Neurology,NeuroRegen-50,Alzheimer's Disease,45,365,Completed,TRUE,0.12,8,2100000,2023-01-10,2024-01-10
+NCT04567234,ImmunoTherapy in Rheumatoid Arthritis,Phase II,Immunology,BioImmune-75,Rheumatoid Arthritis,189,730,Completed,FALSE,0.31,56,9200000,2020-09-20,2022-09-25

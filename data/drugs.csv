@@ -1,0 +1,5 @@
+drug_id,drug_name,mechanism,molecular_weight,bioavailability,half_life_hours,target_indication,development_stage,manufacturer
+DRUG-1001,ImmunoX-101,Checkpoint Inhibitor,148.2,0.78,24.5,Advanced Melanoma,Phase II,BioPharm Inc
+DRUG-1002,CardioProtect-200,ACE Inhibitor,385.6,0.65,12.3,Chronic Heart Failure,Phase III,CardioTherapeutics
+DRUG-1003,NeuroRegen-50,Small Molecule,422.8,0.82,18.7,Alzheimer's Disease,Phase I,NeuroCure Labs
+DRUG-1004,BioImmune-75,Monoclonal Antibody,145.3,0.71,36.2,Rheumatoid Arthritis,Phase II,ImmunoGen Corp

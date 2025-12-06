@@ -1,0 +1,195 @@
+/* Custom styles for Clinic-Buddy Clinical Trial Simulator */
+/* Dark Theme with Modest Colors */
+
+:root {
+    --bg-primary: #0f1419;
+    --bg-secondary: #1a1f2e;
+    --bg-card: #1e2538;
+    --bg-hover: #252d3d;
+    --text-primary: #e7e9ea;
+    --text-secondary: #8b98a5;
+    --text-muted: #6e7681;
+    --accent-primary: #3b82f6;
+    --accent-secondary: #0ea5e9;
+    --accent-success: #10b981;
+    --accent-warning: #f59e0b;
+    --accent-danger: #ef4444;
+    --border-color: #2d3748;
+}
+
+body {
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary);
+}
+
+/* Dark theme overrides */
+.bg-gray-50 { background-color: var(--bg-primary) !important; }
+.bg-white { background-color: var(--bg-card) !important; }
+.bg-gray-100 { background-color: var(--bg-secondary) !important; }
+.bg-gray-900 { background-color: #0a0d12 !important; }
+
+.text-gray-900 { color: var(--text-primary) !important; }
+.text-gray-700 { color: var(--text-secondary) !important; }
+.text-gray-600 { color: var(--text-secondary) !important; }
+.text-gray-500 { color: var(--text-muted) !important; }
+.text-gray-400 { color: var(--text-muted) !important; }
+
+/* Card styles for dark theme */
+.shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Gradient for Clinic-Buddy */
+.gradient-bg {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #0ea5e9 100%) !important;
+    transition: all 0.3s ease;
+}
+
+.gradient-bg:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+}
+
+/* Navigation dark theme */
+nav.bg-white {
+    background-color: var(--bg-secondary) !important;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Modal animations */
+#tourModal {
+    animation: fadeIn 0.3s ease-out;
+}
+
+#tourModal > div {
+    animation: slideUp 0.3s ease-out;
+    background-color: var(--bg-card) !important;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Tour step transitions */
+.tour-step {
+    animation: fadeInStep 0.4s ease-out;
+}
+
+@keyframes fadeInStep {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* Progress dot transitions */
+.tour-dot {
+    transition: all 0.3s ease;
+}
+
+.tour-dot:hover {
+    transform: scale(1.2);
+}
+
+/* Card hover effects */
+.card-hover {
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+}
+
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border-color: var(--accent-primary);
+}
+
+/* Nav link hover effects */
+.nav-link {
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+.nav-link:hover {
+    color: var(--accent-primary) !important;
+}
+
+/* Form inputs dark theme */
+input, select, textarea {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: var(--accent-primary) !important;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* Buttons */
+button, .btn {
+    transition: all 0.2s ease;
+}
+
+/* Footer dark */
+footer {
+    background-color: #0a0d12 !important;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Hackathon badge */
+.hackathon-badge {
+    background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Modal backdrop blur */
+#tourModal {
+    transition: backdrop-filter 0.3s ease;
+}
+
+/* Smooth scroll behavior */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Loading animation for buttons */
+button:active {
+    transform: scale(0.98);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #tourModal > div {
+        max-width: 95%;
+        margin: 1rem;
+    }
+    
+    .tour-step h3 {
+        font-size: 1.5rem;
+    }
+}

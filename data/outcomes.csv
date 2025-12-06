@@ -1,0 +1,5 @@
+outcome_id,trial_id,primary_endpoint_met,efficacy_score,safety_score,overall_score,dropout_count,adverse_events_count,serious_adverse_events,completion_rate,statistical_significance
+OUT-1001,NCT04521789,TRUE,0.82,0.91,0.85,28,23,2,0.82,TRUE
+OUT-1002,NCT04389654,TRUE,0.76,0.88,0.80,71,41,5,0.78,TRUE
+OUT-1003,NCT04198765,TRUE,0.73,0.95,0.82,5,8,0,0.88,TRUE
+OUT-1004,NCT04567234,FALSE,0.54,0.67,0.58,59,56,8,0.69,FALSE

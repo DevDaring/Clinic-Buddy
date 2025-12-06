@@ -1,0 +1,345 @@
+{% extends "base.html" %}
+
+{% block title %}User Profile - Clinic-Buddy{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">User Profile</h1>
+            <p class="text-gray-600">Manage your account settings</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Sidebar -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="text-center mb-6">
+                    <div class="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-white text-4xl font-bold" id="avatarInitial">U</span>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-900" id="displayName">User Name</h2>
+                    <p class="text-gray-500 text-sm" id="displayEmail">user@example.com</p>
+                </div>
+                
+                <nav class="space-y-2">
+                    <button onclick="showTab('profile')" id="tab-profile" class="w-full text-left px-4 py-2 rounded-lg bg-indigo-50 text-indigo-600 font-medium">
+                        👤 Profile Info
+                    </button>
+                    <button onclick="showTab('security')" id="tab-security" class="w-full text-left px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700">
+                        🔒 Security
+                    </button>
+                    <a href="/logout" class="block w-full text-left px-4 py-2 rounded-lg hover:bg-red-50 text-red-600 font-medium">
+                        🚪 Logout
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Main Content -->
+            <div class="md:col-span-2 bg-white rounded-2xl shadow-lg p-8">
+                <!-- Alert Message -->
+                <div id="alertMessage" class="hidden rounded-lg p-4 mb-6"></div>
+
+                <!-- Profile Tab -->
+                <div id="content-profile" class="tab-content">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-6">Profile Information</h3>
+                    
+                    <form id="profileForm" class="space-y-5">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="first_name" class="block text-sm font-semibold text-gray-700 mb-2">
+                                    First Name
+                                </label>
+                                <input
+                                    id="first_name"
+                                    name="first_name"
+                                    type="text"
+                                    required
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                >
+                            </div>
+                            <div>
+                                <label for="last_name" class="block text-sm font-semibold text-gray-700 mb-2">
+                                    Last Name
+                                </label>
+                                <input
+                                    id="last_name"
+                                    name="last_name"
+                                    type="text"
+                                    required
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                >
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="username" class="block text-sm font-semibold text-gray-700 mb-2">
+                                Username
+                            </label>
+                            <input
+                                id="username"
+                                name="username"
+                                type="text"
+                                disabled
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+                            >
+                            <p class="text-xs text-gray-500 mt-1">Username cannot be changed</p>
+                        </div>
+
+                        <div>
+                            <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
+                                Email Address
+                            </label>
+                            <input
+                                id="email"
+                                name="email"
+                                type="email"
+                                required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                            >
+                        </div>
+
+                        <button
+                            type="submit"
+                            class="w-full gradient-bg text-white py-3 px-4 rounded-lg font-semibold hover:opacity-90 transition"
+                        >
+                            <span id="saveBtnText">Save Changes</span>
+                            <span id="saveBtnLoading" class="hidden">Saving...</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Security Tab -->
+                <div id="content-security" class="tab-content hidden">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-6">Change Password</h3>
+                    
+                    <form id="passwordForm" class="space-y-5">
+                        <div>
+                            <label for="current_password" class="block text-sm font-semibold text-gray-700 mb-2">
+                                Current Password
+                            </label>
+                            <input
+                                id="current_password"
+                                name="current_password"
+                                type="password"
+                                required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                            >
+                        </div>
+
+                        <div>
+                            <label for="new_password" class="block text-sm font-semibold text-gray-700 mb-2">
+                                New Password
+                            </label>
+                            <input
+                                id="new_password"
+                                name="new_password"
+                                type="password"
+                                required
+                                minlength="6"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                oninput="checkPasswordStrength(this.value)"
+                            >
+                            <!-- Password Strength Meter -->
+                            <div class="mt-2">
+                                <div class="flex gap-1 mb-1">
+                                    <div id="strength-bar-1" class="h-2 flex-1 bg-gray-200 rounded"></div>
+                                    <div id="strength-bar-2" class="h-2 flex-1 bg-gray-200 rounded"></div>
+                                    <div id="strength-bar-3" class="h-2 flex-1 bg-gray-200 rounded"></div>
+                                    <div id="strength-bar-4" class="h-2 flex-1 bg-gray-200 rounded"></div>
+                                </div>
+                                <p id="strength-text" class="text-xs text-gray-500">Password strength</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="confirm_new_password" class="block text-sm font-semibold text-gray-700 mb-2">
+                                Confirm New Password
+                            </label>
+                            <input
+                                id="confirm_new_password"
+                                name="confirm_new_password"
+                                type="password"
+                                required
+                                minlength="6"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                            >
+                        </div>
+
+                        <button
+                            type="submit"
+                            class="w-full gradient-bg text-white py-3 px-4 rounded-lg font-semibold hover:opacity-90 transition"
+                        >
+                            Update Password
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back Link -->
+        <div class="mt-6 text-center">
+            <a href="/simulator" class="text-gray-600 hover:text-indigo-600 transition text-sm">
+                ← Back to Simulator
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentUser = null;
+
+    // Load user data on page load
+    window.addEventListener('DOMContentLoaded', async () => {
+        await loadUserProfile();
+    });
+
+    async function loadUserProfile() {
+        const token = localStorage.getItem('auth_token');
+        if (!token) {
+            window.location.href = '/login';
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/auth/me', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to load profile');
+            }
+
+            const data = await response.json();
+            currentUser = data.user;
+
+            // Populate form
+            document.getElementById('first_name').value = currentUser.first_name;
+            document.getElementById('last_name').value = currentUser.last_name;
+            document.getElementById('username').value = currentUser.username;
+            document.getElementById('email').value = currentUser.email;
+
+            // Update display
+            document.getElementById('displayName').textContent = `${currentUser.first_name} ${currentUser.last_name}`;
+            document.getElementById('displayEmail').textContent = currentUser.email;
+            document.getElementById('avatarInitial').textContent = currentUser.first_name.charAt(0).toUpperCase();
+
+        } catch (error) {
+            console.error('Error loading profile:', error);
+            showAlert('Failed to load profile. Please login again.', 'error');
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 2000);
+        }
+    }
+
+    function showTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.add('hidden');
+        });
+        
+        // Remove active state from all buttons
+        document.querySelectorAll('[id^="tab-"]').forEach(btn => {
+            btn.classList.remove('bg-indigo-50', 'text-indigo-600');
+            btn.classList.add('text-gray-700', 'hover:bg-gray-100');
+        });
+        
+        // Show selected tab
+        document.getElementById(`content-${tabName}`).classList.remove('hidden');
+        
+        // Add active state to button
+        const activeBtn = document.getElementById(`tab-${tabName}`);
+        activeBtn.classList.add('bg-indigo-50', 'text-indigo-600');
+        activeBtn.classList.remove('text-gray-700', 'hover:bg-gray-100');
+    }
+
+    function showAlert(message, type = 'error') {
+        const alertDiv = document.getElementById('alertMessage');
+        alertDiv.className = `rounded-lg p-4 mb-6 ${type === 'error' ? 'bg-red-50 border border-red-200 text-red-800' : 'bg-green-50 border border-green-200 text-green-800'}`;
+        alertDiv.innerHTML = `
+            <div class="flex items-center">
+                <span class="mr-2">${type === 'error' ? '❌' : '✓'}</span>
+                <span>${message}</span>
+            </div>
+        `;
+        alertDiv.classList.remove('hidden');
+        
+        setTimeout(() => {
+            alertDiv.classList.add('hidden');
+        }, 5000);
+    }
+
+    // Profile form submission
+    document.getElementById('profileForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const token = localStorage.getItem('auth_token');
+        const formData = {
+            first_name: document.getElementById('first_name').value,
+            last_name: document.getElementById('last_name').value,
+            email: document.getElementById('email').value
+        };
+        
+        try {
+            const response = await fetch('/api/auth/profile', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(formData)
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showAlert('Profile updated successfully!', 'success');
+                await loadUserProfile();
+            } else {
+                showAlert(data.message || 'Failed to update profile', 'error');
+            }
+        } catch (error) {
+            showAlert('An error occurred. Please try again.', 'error');
+        }
+    });
+
+    // Password strength checker
+    function checkPasswordStrength(password) {
+        let strength = 0;
+        const bars = [
+            document.getElementById('strength-bar-1'),
+            document.getElementById('strength-bar-2'),
+            document.getElementById('strength-bar-3'),
+            document.getElementById('strength-bar-4')
+        ];
+        const text = document.getElementById('strength-text');
+
+        // Reset bars
+        bars.forEach(bar => {
+            bar.className = 'h-2 flex-1 bg-gray-200 rounded';
+        });
+
+        if (password.length >= 6) strength++;
+        if (password.length >= 8) strength++;
+        if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+        const colors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-green-500'];
+        const labels = ['Weak', 'Fair', 'Good', 'Strong'];
+        
+        const level = Math.min(Math.floor(strength / 1.5), 3);
+        
+        for (let i = 0; i <= level; i++) {
+            bars[i].classList.remove('bg-gray-200');
+            bars[i].classList.add(colors[level]);
+        }
+        
+        text.textContent = password.length > 0 ? `Password strength: ${labels[level]}` : 'Password strength';
+        text.className = `text-xs ${colors[level].replace('bg-', 'text-')}`;
+    }
+</script>
+{% endblock %}

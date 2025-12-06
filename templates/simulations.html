@@ -1,0 +1,401 @@
+{% extends "base.html" %}
+
+{% block title %}All Simulations - Clinic-Buddy{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h1 class="text-4xl font-bold text-gray-900 mb-2">All Clinical Trial Simulations</h1>
+                    <p class="text-gray-600">Browse and explore all historical trial simulations</p>
+                </div>
+                <a href="/simulator" class="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition">
+                    + New Simulation
+                </a>
+            </div>
+            
+            <!-- Stats Summary -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <p class="text-sm text-gray-600 mb-1">Total Simulations</p>
+                    <p class="text-2xl font-bold text-indigo-600" id="totalCount">0</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <p class="text-sm text-gray-600 mb-1">Avg Success Rate</p>
+                    <p class="text-2xl font-bold text-green-600" id="avgSuccess">0%</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <p class="text-sm text-gray-600 mb-1">Avg Patients</p>
+                    <p class="text-2xl font-bold text-blue-600" id="avgPatients">0</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <p class="text-sm text-gray-600 mb-1">Completed Trials</p>
+                    <p class="text-2xl font-bold text-purple-600" id="completedCount">0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1">
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        placeholder="Search by simulation ID, trial name, or drug..." 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        onkeyup="filterSimulations()"
+                    >
+                </div>
+                <select id="sortSelect" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" onchange="sortSimulations()">
+                    <option value="date_desc">Newest First</option>
+                    <option value="date_asc">Oldest First</option>
+                    <option value="success_desc">Highest Success Rate</option>
+                    <option value="success_asc">Lowest Success Rate</option>
+                    <option value="patients_desc">Most Patients</option>
+                    <option value="patients_asc">Least Patients</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+            <p class="text-gray-600">Loading simulations...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="hidden bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+            <svg class="w-12 h-12 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <h3 class="text-xl font-bold text-red-800 mb-2">Failed to Load Simulations</h3>
+            <p class="text-red-600 mb-4" id="errorMessage"></p>
+            <button onclick="loadSimulations()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition">
+                Retry
+            </button>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden bg-white rounded-lg shadow-md p-12 text-center">
+            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <h3 class="text-xl font-bold text-gray-700 mb-2">No Simulations Found</h3>
+            <p class="text-gray-600 mb-6">Start by creating your first clinical trial simulation</p>
+            <a href="/simulator" class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition">
+                Create Simulation
+            </a>
+        </div>
+
+        <!-- Simulations Grid -->
+        <div id="simulationsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Simulation cards will be inserted here by JavaScript -->
+        </div>
+
+        <!-- Pagination -->
+        <div id="pagination" class="hidden mt-8 flex justify-center items-center space-x-2">
+            <button onclick="previousPage()" id="prevBtn" class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                ← Previous
+            </button>
+            <span id="pageInfo" class="text-gray-600 px-4">Page 1 of 1</span>
+            <button onclick="nextPage()" id="nextBtn" class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                Next →
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    let allSimulations = [];
+    let filteredSimulations = [];
+    let currentPage = 1;
+    const itemsPerPage = 12;
+
+    // Load simulations on page load
+    document.addEventListener('DOMContentLoaded', async () => {
+        await loadSimulations();
+    });
+
+    async function loadSimulations() {
+        const loadingState = document.getElementById('loadingState');
+        const errorState = document.getElementById('errorState');
+        const emptyState = document.getElementById('emptyState');
+        const simulationsGrid = document.getElementById('simulationsGrid');
+
+        // Show loading
+        loadingState.classList.remove('hidden');
+        errorState.classList.add('hidden');
+        emptyState.classList.add('hidden');
+        simulationsGrid.innerHTML = '';
+
+        try {
+            // Get user info from localStorage
+            const userStr = localStorage.getItem('user');
+            const token = localStorage.getItem('auth_token');
+            
+            if (!userStr || !token) {
+                window.location.href = '/login';
+                return;
+            }
+
+            const userData = JSON.parse(userStr);
+            
+            if (!userData.user_id) {
+                throw new Error('Invalid user data');
+            }
+            
+            // Get all simulations for this user
+            const response = await fetch(`/api/chat/user-simulations?user_id=${userData.user_id}`, {
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.detail || 'Failed to fetch simulations');
+            }
+
+            const data = await response.json();
+            allSimulations = data.simulations || [];
+            filteredSimulations = [...allSimulations];
+
+            // Hide loading
+            loadingState.classList.add('hidden');
+
+            if (allSimulations.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                updateStats();
+                sortSimulations();
+                displaySimulations();
+            }
+
+        } catch (error) {
+            console.error('Error loading simulations:', error);
+            loadingState.classList.add('hidden');
+            errorState.classList.remove('hidden');
+            document.getElementById('errorMessage').textContent = error.message;
+        }
+    }
+
+    function updateStats() {
+        document.getElementById('totalCount').textContent = allSimulations.length;
+
+        if (allSimulations.length > 0) {
+            // Calculate average success rate
+            const avgSuccess = allSimulations.reduce((sum, sim) => 
+                sum + (sim.success_probability || 0), 0) / allSimulations.length;
+            document.getElementById('avgSuccess').textContent = (avgSuccess * 100).toFixed(1) + '%';
+
+            // Calculate average patients
+            const avgPatients = Math.round(allSimulations.reduce((sum, sim) => 
+                sum + (sim.patients_enrolled || 0), 0) / allSimulations.length);
+            document.getElementById('avgPatients').textContent = avgPatients;
+
+            // Count completed trials (those with patients_completed)
+            const completed = allSimulations.filter(sim => 
+                sim.patients_completed && sim.patients_completed > 0).length;
+            document.getElementById('completedCount').textContent = completed;
+        }
+    }
+
+    function filterSimulations() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        
+        if (!searchTerm) {
+            filteredSimulations = [...allSimulations];
+        } else {
+            filteredSimulations = allSimulations.filter(sim => {
+                const searchableText = [
+                    sim.simulation_id,
+                    sim.trial_name,
+                    sim.drug_name,
+                    sim.indication,
+                    sim.trial_phase
+                ].join(' ').toLowerCase();
+                
+                return searchableText.includes(searchTerm);
+            });
+        }
+
+        currentPage = 1;
+        displaySimulations();
+    }
+
+    function sortSimulations() {
+        const sortBy = document.getElementById('sortSelect').value;
+
+        filteredSimulations.sort((a, b) => {
+            switch (sortBy) {
+                case 'date_desc':
+                    return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+                case 'date_asc':
+                    return new Date(a.created_at || 0) - new Date(b.created_at || 0);
+                case 'success_desc':
+                    return (b.success_probability || 0) - (a.success_probability || 0);
+                case 'success_asc':
+                    return (a.success_probability || 0) - (b.success_probability || 0);
+                case 'patients_desc':
+                    return (b.patients_enrolled || 0) - (a.patients_enrolled || 0);
+                case 'patients_asc':
+                    return (a.patients_enrolled || 0) - (b.patients_enrolled || 0);
+                default:
+                    return 0;
+            }
+        });
+
+        displaySimulations();
+    }
+
+    function displaySimulations() {
+        const simulationsGrid = document.getElementById('simulationsGrid');
+        const pagination = document.getElementById('pagination');
+
+        if (filteredSimulations.length === 0) {
+            simulationsGrid.innerHTML = `
+                <div class="col-span-full bg-white rounded-lg shadow-md p-12 text-center">
+                    <p class="text-gray-600">No simulations match your search criteria</p>
+                </div>
+            `;
+            pagination.classList.add('hidden');
+            return;
+        }
+
+        // Calculate pagination
+        const totalPages = Math.ceil(filteredSimulations.length / itemsPerPage);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const pageSimulations = filteredSimulations.slice(startIndex, endIndex);
+
+        // Display simulations
+        simulationsGrid.innerHTML = pageSimulations.map(sim => createSimulationCard(sim)).join('');
+
+        // Update pagination
+        if (totalPages > 1) {
+            pagination.classList.remove('hidden');
+            document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
+        } else {
+            pagination.classList.add('hidden');
+        }
+    }
+
+    function createSimulationCard(sim) {
+        const successRate = ((sim.success_probability || 0) * 100).toFixed(1);
+        const successColor = successRate >= 70 ? 'text-green-600' : successRate >= 50 ? 'text-yellow-600' : 'text-red-600';
+        const createdDate = sim.created_at ? new Date(sim.created_at).toLocaleDateString() : 'N/A';
+        
+        // Extract trial information
+        const trialInfo = sim.trial_info || {};
+        const trialName = trialInfo.trial_name || sim.trial_name || 'N/A';
+        const trialPhase = trialInfo.phase || sim.trial_phase || 'N/A';
+        const drugName = trialInfo.drug_name || sim.drug_name || 'N/A';
+        const therapeuticArea = trialInfo.therapeutic_area || sim.indication || 'N/A';
+
+        return `
+            <div class="bg-white rounded-lg shadow-md hover:shadow-xl transition overflow-hidden">
+                <div class="p-6">
+                    <!-- Header -->
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-900 mb-1" style="word-break: break-word;">
+                                ${sim.simulation_id || 'N/A'}
+                            </h3>
+                            <p class="text-sm text-gray-600">${trialName}</p>
+                        </div>
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-600">
+                            ${trialPhase}
+                        </span>
+                    </div>
+
+                    <!-- Drug and Indication -->
+                    <div class="mb-4 space-y-2">
+                        <div class="flex items-center text-sm">
+                            <span class="text-gray-600 w-24">Drug:</span>
+                            <span class="font-medium text-gray-900">${drugName}</span>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <span class="text-gray-600 w-24">Therapeutic:</span>
+                            <span class="font-medium text-gray-900">${therapeuticArea}</span>
+                        </div>
+                        ${trialInfo.trial_id ? `
+                        <div class="flex items-center text-sm">
+                            <span class="text-gray-600 w-24">Trial ID:</span>
+                            <span class="font-medium text-gray-700 text-xs">${trialInfo.trial_id}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="border-t border-gray-200 pt-4 grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <p class="text-xs text-gray-600 mb-1">Patients</p>
+                            <p class="text-lg font-bold text-blue-600">
+                                ${sim.patients_enrolled || 0}
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-600 mb-1">Success Rate</p>
+                            <p class="text-lg font-bold ${successColor}">
+                                ${successRate}%
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="border-t border-gray-200 pt-4 space-y-2">
+                        <div class="flex items-center justify-between gap-2">
+                            <a href="/results?simulation_id=${sim.simulation_id}" 
+                               class="flex-1 text-center px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg font-semibold hover:bg-indigo-100 transition"
+                               onclick="event.stopPropagation()">
+                                📊 View
+                            </a>
+                            <a href="/update-simulation?simulation_id=${sim.simulation_id}" 
+                               class="flex-1 text-center px-4 py-2 bg-green-50 text-green-600 rounded-lg font-semibold hover:bg-green-100 transition"
+                               onclick="event.stopPropagation()">
+                                ✏️ Update
+                            </a>
+                        </div>
+                        <a href="/results?simulation_id=${sim.simulation_id}" 
+                           class="block w-full text-center px-4 py-2 bg-gradient-to-r from-purple-50 to-indigo-50 text-purple-700 rounded-lg font-semibold hover:from-purple-100 hover:to-indigo-100 transition border border-purple-200"
+                           onclick="event.stopPropagation()">
+                            📊 View Analysis
+                        </a>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="mt-4 pt-4 border-t border-gray-200 text-xs text-gray-500 text-center">
+                        📅 ${createdDate}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function previousPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            displaySimulations();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
+
+    function nextPage() {
+        const totalPages = Math.ceil(filteredSimulations.length / itemsPerPage);
+        if (currentPage < totalPages) {
+            currentPage++;
+            displaySimulations();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,24 @@
+# -----------------------------
+# .gcloudignore  (upload filter for gcloud builds submit)
+# If this file exists, gcloud IGNOREs .gitignore completely.
+# -----------------------------
+
+# Keep Git directory out of the upload
+.git
+.git/**
+
+# Common local junk
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.coverage
+.dist/
+.venv/
+.env.local
+.DS_Store
+
+# IMPORTANT: do NOT exclude your runtime secrets
+# (we want these uploaded into the image for your hackathon)
+# DO NOT put "secrets/" or ".env" here

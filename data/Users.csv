@@ -1,0 +1,4 @@
+index,first_name,last_name,username,email,password
+1,Admin,User,admin,admin@akinchan.com,240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9
+2,Demo,User,user1,user1@demo.com,0d41b62227aaf464c84c073446982af140710e1aae81ef01c68e290889ceef50
+3,Judge,Hackathon,judge,judge@hackathon.com,2ece2f9e15c65b40e611fea4e12a2213ab52720b33f1bd7315fa69c472605294

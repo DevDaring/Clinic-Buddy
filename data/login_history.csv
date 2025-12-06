@@ -1,0 +1,11 @@
+timestamp,user_id,username,ip_address,country,region,city,latitude,longitude,isp,timezone
+2025-11-09 15:32:35,2,user1,127.0.0.1,Localhost,Unknown,Local Machine,0.0,0.0,Unknown,Unknown
+2025-11-09 15:40:03,2,user1,127.0.0.1,India,West Bengal,Kolkata,22.560768,88.375296,GPS Location (±57520m),Unknown
+2025-11-09 17:15:35,2,user1,127.0.0.1,India,West Bengal,Kolkata,22.560768,88.375296,GPS Location (±57520m),Unknown
+2025-11-09 17:19:08,2,user1,127.0.0.1,India,West Bengal,Barrackpore,22.7691758,88.3784567,GPS Location (±22m),Unknown
+2025-11-09 17:34:42,2,user1,127.0.0.1,India,West Bengal,Kolkata,22.560768,88.375296,GPS Location (±57520m),Unknown
+2025-11-09 17:48:39,2,user1,127.0.0.1,India,West Bengal,Kolkata,22.560768,88.375296,GPS Location (±57520m),Unknown
+2025-11-09 17:49:47,2,user1,127.0.0.1,India,West Bengal,Kolkata,22.4803,88.403,GPS Location (±91250m),Unknown
+2025-11-09 17:57:18,2,user1,127.0.0.1,India,West Bengal,Barrackpore,22.7691703,88.3784609,GPS Location (±20m),Unknown
+2025-11-09 17:59:05,2,user1,127.0.0.1,Unknown,Unknown,GPS Denied or Unavailable,0.0,0.0,No GPS Data,Unknown
+2025-11-09 18:19:01,2,user1,127.0.0.1,India,West Bengal,Kolkata,22.560768,88.375296,GPS Location (±57520m),Unknown

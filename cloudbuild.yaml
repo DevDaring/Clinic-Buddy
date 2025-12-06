@@ -1,0 +1,65 @@
+# Cloud Build Configuration for GCP Deployment
+# This file builds the Docker image and pushes to Google Container Registry (GCR)
+# Use this for CI/CD pipeline automation on Google Cloud Build
+
+steps:
+  # Step 1: Build Docker image with CUDA/GPU support
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-image'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/clinical-trial-predictor:${SHORT_SHA}'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/clinical-trial-predictor:latest'
+      - '-f'
+      - 'Dockerfile'
+      - '.'
+    timeout: '3600s'  # 1 hour timeout for large CUDA image build
+
+  # Step 2: Push image to GCR
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-image'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/clinical-trial-predictor:${SHORT_SHA}'
+    timeout: '600s'
+
+  # Step 3: Deploy to GCP VM (using gcloud compute)
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'deploy-to-vm'
+    args:
+      - 'compute'
+      - 'instances'
+      - 'create-with-container'
+      - 'clinical-trial-poc'
+      - '--container-image=gcr.io/$PROJECT_ID/clinical-trial-predictor:${SHORT_SHA}'
+      - '--machine-type=n1-standard-4'  # 4 vCPU, 15GB RAM for T4 GPU
+      - '--accelerator=type=nvidia-tesla-t4,count=1'  # NVIDIA T4 GPU attachment
+      - '--image=ubuntu-2204-lts'
+      - '--image-project=ubuntu-os-cloud'
+      - '--zone=europe-west1-b'  # europe-west1 region
+      - '--container-env=PORT=8000,LOCAL_MODEL=1'  # Environment variables
+      - '--container-restart-policy=on-failure'
+      - '--scopes=https://www.googleapis.com/auth/cloud-platform'
+    onFailure: ['CONTINUE']  # Continue even if VM already exists
+
+images:
+  - 'gcr.io/$PROJECT_ID/clinical-trial-predictor:${SHORT_SHA}'
+  - 'gcr.io/$PROJECT_ID/clinical-trial-predictor:latest'
+
+# Build configuration
+options:
+  machineType: 'N1_HIGHCPU_8'  # Faster build machine
+  logging: CLOUD_LOGGING_ONLY
+
+# Timeout for entire build
+timeout: '4200s'  # 70 minutes total
+
+# Substitutions for dynamic values
+substitutions:
+  _ZONE: 'europe-west1-b'
+  _MACHINE_TYPE: 'n1-standard-4'
+  _GPU_COUNT: '1'
+  _GPU_TYPE: 'nvidia-tesla-t4'
+  _PROJECT_ID: 'silicon-guru-472717-q9'

@@ -1,0 +1,380 @@
+{% extends "base.html" %}
+
+{% block title %}Trial Simulator - Clinic-Buddy{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold text-gray-100 mb-2">Clinical Trial Simulator</h1>
+        <p class="text-xl text-gray-400">Design your trial and get AI-powered predictions</p>
+    </div>
+
+    <div x-data="trialSimulator()" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Trial Design Form -->
+        <div class="lg:col-span-2">
+            <div class="bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-700">
+                <h2 class="text-2xl font-bold text-gray-100 mb-2">Trial Design</h2>
+                <p class="text-sm text-gray-400 mb-6">
+                    <span class="text-red-400">*</span> Required fields
+                </p>
+                
+                <form @submit.prevent="runSimulation" class="space-y-6">
+                    <!-- Basic Information -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-300 mb-2">
+                            Trial Name <span class="text-red-400">*</span>
+                        </label>
+                        <input type="text" x-model="trialDesign.trial_name" 
+                               class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-100 placeholder-gray-400"
+                               placeholder="e.g., Phase II Study of Drug X in Advanced Cancer" required>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">
+                                Phase <span class="text-red-400">*</span>
+                            </label>
+                            <select x-model="trialDesign.phase" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-100" required>
+                                <option value="Phase I">Phase I</option>
+                                <option value="Phase II" selected>Phase II</option>
+                                <option value="Phase III">Phase III</option>
+                                <option value="Phase IV">Phase IV</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">
+                                Therapeutic Area <span class="text-red-400">*</span>
+                            </label>
+                            <select x-model="trialDesign.therapeutic_area" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-100" required>
+                                <option value="Oncology" selected>Oncology</option>
+                                <option value="Cardiology">Cardiology</option>
+                                <option value="Neurology">Neurology</option>
+                                <option value="Immunology">Immunology</option>
+                                <option value="Endocrinology">Endocrinology</option>
+                                <option value="Gastroenterology">Gastroenterology</option>
+                                <option value="Respiratory">Respiratory</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">
+                                Drug Name <span class="text-red-400">*</span>
+                            </label>
+                            <input type="text" x-model="trialDesign.drug_name" 
+                                   class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-100 placeholder-gray-400"
+                                   placeholder="e.g., DrugX-101" required>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">
+                                Indication <span class="text-red-400">*</span>
+                            </label>
+                            <input type="text" x-model="trialDesign.indication" 
+                                   class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-100 placeholder-gray-400"
+                                   placeholder="e.g., Advanced NSCLC" required>
+                        </div>
+                    </div>
+
+                    <!-- Patient Parameters -->
+                    <div class="border-t border-gray-700 pt-6">
+                        <h3 class="text-lg font-bold text-gray-100 mb-4">Patient Parameters</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-300 mb-2">
+                                    Target Enrollment <span class="text-red-400">*</span>
+                                </label>
+                                <input type="number" x-model.number="trialDesign.target_enrollment" 
+                                       class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-100"
+                                       min="10" max="10000" required>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-300 mb-2">
+                                    Min Age <span class="text-red-400">*</span>
+                                </label>
+                                <input type="number" x-model.number="trialDesign.inclusion_criteria.min_age" 
+                                       class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-100"
+                                       min="18" max="100" required>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-300 mb-2">
+                                    Max Age <span class="text-red-400">*</span>
+                                </label>
+                                <input type="number" x-model.number="trialDesign.inclusion_criteria.max_age" 
+                                       class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-100"
+                                       min="18" max="100" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trial Parameters -->
+                    <div class="border-t border-gray-700 pt-6">
+                        <h3 class="text-lg font-bold text-gray-100 mb-4">Trial Parameters</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-300 mb-2">
+                                    Duration (days) <span class="text-red-400">*</span>
+                                </label>
+                                <input type="number" x-model.number="trialDesign.duration_days" 
+                                       class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-100"
+                                       min="30" max="3650" required>
+                                <p class="text-sm text-gray-400 mt-1" x-text="(trialDesign.duration_days / 365).toFixed(1) + ' years'"></p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-300 mb-2">
+                                    Expected Dropout Rate (%) <span class="text-red-400">*</span>
+                                </label>
+                                <input type="number" x-model.number="trialDesign.expected_dropout_rate" 
+                                       class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-100"
+                                       min="0" max="100" step="0.1" required>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">
+                                Primary Endpoint <span class="text-red-400">*</span>
+                            </label>
+                            <input type="text" x-model="trialDesign.primary_endpoint" 
+                                   class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-100 placeholder-gray-400"
+                                   placeholder="e.g., Progression-Free Survival" required>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="pt-6">
+                        <button type="submit" 
+                                :disabled="loading"
+                                class="w-full gradient-bg text-white px-6 py-4 rounded-lg font-bold text-lg hover:opacity-90 transition disabled:opacity-50">
+                            <span x-show="!loading">🚀 Run Simulation</span>
+                            <span x-show="loading" class="flex items-center justify-center">
+                                <svg class="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Simulating...
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Results Preview -->
+        <div class="lg:col-span-1">
+            <div class="bg-gray-800 rounded-xl shadow-lg p-8 sticky top-24 border border-gray-700">
+                <h2 class="text-2xl font-bold text-gray-100 mb-6">Quick Insights</h2>
+                
+                <div x-show="!results" class="text-center py-8">
+                    <i class="fas fa-bullseye text-6xl text-blue-400 mb-4"></i>
+                    <p class="text-gray-400">Run a simulation to see predictions</p>
+                </div>
+
+                <div x-show="results" class="space-y-6">
+                    <!-- Success Probability -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-semibold text-gray-300">Success Probability</span>
+                            <span class="text-2xl font-bold text-blue-400" x-text="(results?.success_probability * 100).toFixed(1) + '%'"></span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-3">
+                            <div class="gradient-bg h-3 rounded-full transition-all duration-500" 
+                                 :style="`width: ${results?.success_probability * 100}%`"></div>
+                        </div>
+                    </div>
+
+                    <!-- Key Metrics -->
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-400">Enrolled</span>
+                            <span class="font-bold text-gray-100" x-text="results?.patients_enrolled"></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-400">Completed</span>
+                            <span class="font-bold text-gray-100" x-text="results?.patients_completed"></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-400">Dropout Rate</span>
+                            <span class="font-bold text-gray-100" x-text="(results?.dropout_rate * 100).toFixed(1) + '%'"></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-400">Estimated Cost</span>
+                            <span class="font-bold text-gray-100" x-text="'$' + (results?.estimated_cost / 1000000).toFixed(1) + 'M'"></span>
+                        </div>
+                    </div>
+
+                    <!-- View Full Report Button -->
+                    <button @click="viewFullReport" 
+                            class="w-full bg-blue-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+                        📊 View Full Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function trialSimulator() {
+    return {
+        loading: false,
+        results: null,
+        trialDesign: {
+            trial_name: '',
+            phase: 'Phase II',
+            therapeutic_area: 'Oncology',
+            drug_name: '',
+            indication: '',
+            target_enrollment: 200,
+            inclusion_criteria: {
+                min_age: 18,
+                max_age: 75,
+                required_biomarkers: [],
+                excluded_conditions: []
+            },
+            duration_days: 730,
+            primary_endpoint: '',
+            secondary_endpoints: [],
+            treatment_arms: ['Treatment'],
+            control_arm: 'Placebo',
+            expected_dropout_rate: 15,
+            expected_success_rate: 70
+        },
+
+        async runSimulation() {
+            // Validate form
+            if (!this.validateForm()) {
+                return;
+            }
+            
+            this.loading = true;
+            
+            try {
+                // Convert dropout rate from percentage to decimal
+                const requestData = {
+                    trial_design: {
+                        ...this.trialDesign,
+                        expected_dropout_rate: this.trialDesign.expected_dropout_rate / 100,
+                        expected_success_rate: this.trialDesign.expected_success_rate / 100
+                    },
+                    num_simulations: 1,
+                    use_ml_prediction: true
+                };
+
+                console.log('Sending simulation request:', requestData);
+
+                const response = await fetch('/api/trials/simulate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.detail || `Server error: ${response.status}`);
+                }
+
+                this.results = await response.json();
+                console.log('Simulation results:', this.results);
+                
+                // Show success message
+                this.showNotification('Simulation completed successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Simulation error:', error);
+                this.showNotification(
+                    `Simulation failed: ${error.message}. Please check the console and logs for details.`,
+                    'error'
+                );
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        validateForm() {
+            const errors = [];
+            
+            // Required text fields
+            if (!this.trialDesign.trial_name || this.trialDesign.trial_name.trim() === '') {
+                errors.push('Trial Name is required');
+            }
+            if (!this.trialDesign.drug_name || this.trialDesign.drug_name.trim() === '') {
+                errors.push('Drug Name is required');
+            }
+            if (!this.trialDesign.indication || this.trialDesign.indication.trim() === '') {
+                errors.push('Indication is required');
+            }
+            if (!this.trialDesign.primary_endpoint || this.trialDesign.primary_endpoint.trim() === '') {
+                errors.push('Primary Endpoint is required');
+            }
+            
+            // Numeric validations
+            if (!this.trialDesign.target_enrollment || this.trialDesign.target_enrollment < 10) {
+                errors.push('Target Enrollment must be at least 10');
+            }
+            if (!this.trialDesign.duration_days || this.trialDesign.duration_days < 30) {
+                errors.push('Duration must be at least 30 days');
+            }
+            
+            // Age validations
+            const minAge = parseInt(this.trialDesign.inclusion_criteria.min_age);
+            const maxAge = parseInt(this.trialDesign.inclusion_criteria.max_age);
+            
+            if (isNaN(minAge) || minAge < 18) {
+                errors.push('Minimum Age must be at least 18');
+            }
+            if (isNaN(maxAge) || maxAge > 100) {
+                errors.push('Maximum Age cannot exceed 100');
+            }
+            if (minAge >= maxAge) {
+                errors.push('Minimum Age must be less than Maximum Age');
+            }
+            
+            // Dropout rate validation
+            const dropoutRate = parseFloat(this.trialDesign.expected_dropout_rate);
+            if (isNaN(dropoutRate) || dropoutRate < 0 || dropoutRate > 100) {
+                errors.push('Expected Dropout Rate must be between 0 and 100');
+            }
+            
+            if (errors.length > 0) {
+                this.showNotification(
+                    'Please fix the following errors:\n• ' + errors.join('\n• '),
+                    'error'
+                );
+                return false;
+            }
+            
+            return true;
+        },
+
+        showNotification(message, type = 'info') {
+            // Simple alert for now - can be enhanced with toast notifications
+            if (type === 'error') {
+                alert('❌ ' + message);
+            } else if (type === 'success') {
+                alert('✓ ' + message);
+            } else {
+                alert(message);
+            }
+        },
+
+        viewFullReport() {
+            if (this.results && this.results.simulation_id) {
+                window.location.href = `/results/${this.results.simulation_id}`;
+            }
+        }
+    }
+}
+</script>
+{% endblock %}

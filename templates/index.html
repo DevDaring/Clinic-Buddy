@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Clinic-Buddy - Dashboard{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="gradient-bg text-white py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+            <h1 class="text-5xl md:text-6xl font-bold mb-6">
+                Welcome to Clinic-Buddy
+            </h1>
+            <p class="text-2xl md:text-3xl mb-4 text-blue-100">
+                Some lives needs surveillance
+            </p>
+            <p class="text-xl text-blue-200 mb-8 max-w-3xl mx-auto">
+                Harness the power of AI to predict, optimize, and simulate clinical trial outcomes. 
+                Make data-driven decisions that save time, reduce costs, and most importantly—protect lives.
+            </p>
+            
+            <!-- Demo Credentials Banner for Judges -->
+            <div class="max-w-2xl mx-auto mb-6 bg-gray-800/95 backdrop-blur-sm rounded-xl p-5 shadow-2xl border border-gray-600">
+                <div class="flex items-center justify-center mb-3">
+                    <svg class="w-6 h-6 text-blue-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <h3 class="text-lg font-bold text-gray-100">DEMO ACCESS FOR USER</h3>
+                </div>
+                <div class="bg-gray-700 rounded-lg p-4 border border-gray-600">
+                    <div class="grid grid-cols-2 gap-4 text-center mb-3">
+                        <div>
+                            <p class="text-xs text-gray-400 font-semibold mb-1">Username</p>
+                            <p class="text-blue-400 font-mono font-bold text-xl">user1</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400 font-semibold mb-1">Password</p>
+                            <p class="text-blue-400 font-mono font-bold text-xl">Cloud_Run-25</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-400 text-center">Use these credentials to explore all features</p>
+                </div>
+            </div>
+            
+            <div class="flex justify-center space-x-4">
+                <a href="/login" class="bg-white text-blue-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition">
+                    🚀 Start Simulation
+                </a>
+                <a href="/api/docs" class="bg-blue-700 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-800 transition border-2 border-blue-500">
+                    📖 Explore API
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Overview -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <a href="/simulations" class="bg-gray-800 rounded-xl shadow-lg p-6 card-hover cursor-pointer transition transform hover:scale-105 border border-gray-700">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-gray-400 font-semibold">Historical Trials</h3>
+                <i class="fas fa-chart-bar text-blue-400 text-2xl"></i>
+            </div>
+            <p class="text-4xl font-bold text-blue-400">{{ stats.total_trials or 50 }}</p>
+            <p class="text-sm text-gray-500 mt-2">In database - Click to view all</p>
+        </a>
+        
+        <div class="bg-gray-800 rounded-xl shadow-lg p-6 card-hover border border-gray-700">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-gray-400 font-semibold">Success Rate</h3>
+                <i class="fas fa-check-circle text-green-400 text-2xl"></i>
+            </div>
+            <p class="text-4xl font-bold text-green-400">{{ (stats.success_rate * 100)|round(1) or 65.0 }}%</p>
+            <p class="text-sm text-gray-500 mt-2">Average across phases</p>
+        </div>
+        
+        <div class="bg-gray-800 rounded-xl shadow-lg p-6 card-hover border border-gray-700">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-gray-400 font-semibold">Avg Duration</h3>
+                <i class="fas fa-clock text-cyan-400 text-2xl"></i>
+            </div>
+            <p class="text-4xl font-bold text-cyan-400">{{ ((stats.avg_duration_days or 365) / 365)|round(1) }}</p>
+            <p class="text-sm text-gray-500 mt-2">Years per trial</p>
+        </div>
+        
+        <div class="bg-gray-800 rounded-xl shadow-lg p-6 card-hover border border-gray-700">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-gray-400 font-semibold">AI Agents</h3>
+                <i class="fas fa-robot text-purple-400 text-2xl"></i>
+            </div>
+            <p class="text-4xl font-bold text-purple-400">4</p>
+            <p class="text-sm text-gray-500 mt-2">Active & Ready</p>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div class="text-center mb-16">
+        <h2 class="text-4xl font-bold text-gray-100 mb-4">Powerful Features for Clinical Research</h2>
+        <p class="text-xl text-gray-400 max-w-3xl mx-auto">
+            Everything you need to design, simulate, and optimize clinical trials
+        </p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Feature 1 -->
+        <div class="bg-gray-800 rounded-xl shadow-lg p-8 card-hover border border-gray-700">
+            <div class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mb-6">
+                <i class="fas fa-bullseye text-2xl text-white"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-100 mb-4">Smart Simulation</h3>
+            <p class="text-gray-400">
+                Run comprehensive trial simulations with realistic patient cohorts, dropout modeling, 
+                and adverse event prediction based on historical data patterns.
+            </p>
+        </div>
+        
+        <!-- Feature 2 -->
+        <div class="bg-gray-800 rounded-xl shadow-lg p-8 card-hover border border-gray-700">
+            <div class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mb-6">
+                <i class="fas fa-robot text-2xl text-white"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-100 mb-4">AI Agent System</h3>
+            <p class="text-gray-400">
+                Four specialized agents work together: Research Agent analyzes patterns, Prediction Agent 
+                forecasts outcomes, Optimization Agent suggests improvements, and Report Agent generates insights.
+            </p>
+        </div>
+        
+        <!-- Feature 3 -->
+        <div class="bg-gray-800 rounded-xl shadow-lg p-8 card-hover border border-gray-700">
+            <div class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mb-6">
+                <i class="fas fa-bolt text-2xl text-white"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-100 mb-4">AI Accelerated</h3>
+            <p class="text-gray-400">
+                Leverage AI-powered machine learning models for rapid predictions. Process hundreds 
+                of simulations in minutes with batch processing capabilities.
+            </p>
+        </div>
+        
+        <!-- Feature 4 -->
+        <div class="bg-gray-800 rounded-xl shadow-lg p-8 card-hover border border-gray-700">
+            <div class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mb-6">
+                <i class="fas fa-chart-line text-2xl text-white"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-100 mb-4">Data Analytics</h3>
+            <p class="text-gray-400">
+                Analyze historical trial data, identify success factors, and benchmark against 
+                similar studies across therapeutic areas and trial phases.
+            </p>
+        </div>
+        
+        <!-- Feature 5 -->
+        <div class="bg-gray-800 rounded-xl shadow-lg p-8 card-hover border border-gray-700">
+            <div class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mb-6">
+                <i class="fas fa-search text-2xl text-white"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-100 mb-4">Risk Assessment</h3>
+            <p class="text-gray-400">
+                Identify potential risks early with predictive modeling. Get actionable insights 
+                on dropout probability, adverse events, and protocol optimization opportunities.
+            </p>
+        </div>
+        
+        <!-- Feature 6 -->
+        <div class="bg-gray-800 rounded-xl shadow-lg p-8 card-hover border border-gray-700">
+            <div class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mb-6">
+                <i class="fas fa-chart-bar text-2xl text-white"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-100 mb-4">Interactive Reports</h3>
+            <p class="text-gray-400">
+                Generate comprehensive reports with visualizations, success probability metrics, 
+                cost estimates, and timeline projections—all exportable and shareable.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<div class="gradient-bg text-white py-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-4xl md:text-5xl font-bold mb-6">
+            Ready to Revolutionize Your Clinical Trials?
+        </h2>
+        <p class="text-xl text-blue-100 mb-8">
+            Join researchers worldwide using AI to make clinical trials safer, faster, and more efficient.
+        </p>
+        <div class="flex justify-center space-x-4">
+            <a href="/simulator" class="bg-white text-blue-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition">
+                🚀 Start Your First Simulation
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Add any page-specific JavaScript here
+    console.log('Clinic-Buddy Dashboard Loaded');
+</script>
+{% endblock %}

@@ -1,0 +1,609 @@
+{% extends "base.html" %}
+
+{% block title %}Simulation Results - Clinic-Buddy{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" x-data="resultsViewer('{{ simulation_id }}')" x-init="loadResults()">
+    <!-- Header -->
+    <div class="mb-8 flex justify-between items-center">
+        <div>
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">Simulation Results</h1>
+            <p class="text-xl text-gray-600">ID: {{ simulation_id }}</p>
+        </div>
+        <div class="space-x-3">
+            <button 
+                @click="getAIAnalysis()" 
+                :disabled="analysisLoading || !results"
+                class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:from-purple-700 hover:to-indigo-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+            >
+                <span x-text="analysisLoading ? '⏳ Analyzing... Please wait' : (aiAnalysis ? '🔄 Regenerate Analysis' : '🤖 Get AI Analysis')">🤖 Get AI Analysis</span>
+            </button>
+            <button onclick="window.print()" class="bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg font-semibold hover:bg-indigo-200 transition">
+                🖨️ Print Report
+            </button>
+            <a href="/simulator" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition">
+                ← New Simulation
+            </a>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+        <div x-show="loading" class="text-center py-20">
+            <div class="inline-block animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600"></div>
+            <p class="text-gray-600 mt-4">Loading simulation results...</p>
+        </div>
+
+        <!-- Error State -->
+        <div x-show="error && !loading" class="text-center py-20">
+            <div class="text-6xl mb-4">❌</div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Failed to Load Simulation</h2>
+            <p class="text-gray-600 mb-6" x-text="error"></p>
+            <a href="/simulator" class="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition inline-block">
+                ← Back to Simulator
+            </a>
+        </div>
+
+        <!-- Results Content -->
+        <div x-show="!loading && !error && results" class="space-y-8">
+            <!-- Trial Information Card -->
+            <div x-show="trialInfo" class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-indigo-200 rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-indigo-900 mb-4 flex items-center">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Linked Clinical Trial Information
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600">Trial ID</p>
+                        <p class="font-bold text-gray-900" x-text="trialInfo?.trial_id || '-'"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Trial Name</p>
+                        <p class="font-bold text-gray-900" x-text="trialInfo?.trial_name || '-'"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Phase</p>
+                        <p class="font-bold text-gray-900" x-text="trialInfo?.phase || '-'"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Status</p>
+                        <p class="font-bold text-gray-900" x-text="trialInfo?.status || '-'"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Therapeutic Area</p>
+                        <p class="font-bold text-gray-900" x-text="trialInfo?.therapeutic_area || '-'"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Drug Name</p>
+                        <p class="font-bold text-gray-900" x-text="trialInfo?.drug_name || '-'"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Historical Success</p>
+                        <p class="font-bold" :class="trialInfo?.success ? 'text-green-600' : 'text-red-600'" 
+                           x-text="trialInfo?.success ? '✓ Successful' : '✗ Not Successful'"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Enrollment</p>
+                        <p class="font-bold text-gray-900" x-text="trialInfo?.enrollment || '-'"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success Prediction Card -->
+            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-2xl p-8 text-white">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="md:col-span-2">
+                        <h2 class="text-3xl font-bold mb-4">Overall Success Prediction</h2>
+                        <div class="flex items-end space-x-4">
+                            <span class="text-7xl font-bold" x-text="(results?.success_probability * 100).toFixed(1) + '%'"></span>
+                            <span class="text-2xl mb-4">probability of success</span>
+                        </div>
+                        <p class="text-indigo-100 mt-4" x-text="getSuccessMessage()"></p>
+                    </div>
+                    <div class="flex items-center justify-center">
+                        <canvas id="successGauge" width="200" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Analysis Section -->
+            <div x-show="aiAnalysis" 
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 transform scale-95"
+                 x-transition:enter-end="opacity-100 transform scale-100"
+                 class="bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 border-2 border-purple-300 rounded-xl shadow-2xl p-8">
+                <div class="flex items-start justify-between mb-6">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center text-white text-2xl mr-4">
+                            🤖
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-bold text-gray-900">AI-Generated Analysis</h2>
+                            <p class="text-sm text-gray-600 mt-1">
+                                Generated by <span class="font-semibold" x-text="aiAnalysis?.agent_type || 'Report Agent'"></span>
+                                • Confidence: <span class="font-semibold text-purple-600" x-text="((aiAnalysis?.confidence || 0) * 100).toFixed(0) + '%'"></span>
+                                • <span x-text="new Date(aiAnalysis?.timestamp).toLocaleString()"></span>
+                            </p>
+                        </div>
+                    </div>
+                    <button 
+                        @click="aiAnalysis = null" 
+                        class="text-gray-400 hover:text-gray-600 transition"
+                    >
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-lg p-6 shadow-inner">
+                    <div class="prose prose-lg max-w-none" x-html="formatMarkdown(aiAnalysis?.response || '')"></div>
+                </div>
+
+                <div class="mt-6 flex items-center justify-between text-sm text-gray-600">
+                    <div class="flex items-center space-x-4">
+                        <span class="flex items-center">
+                            📚 Sources: <span class="ml-1 font-semibold" x-text="aiAnalysis?.sources?.join(', ') || 'N/A'"></span>
+                        </span>
+                    </div>
+                    <button 
+                        @click="copyAnalysis()" 
+                        class="bg-purple-100 text-purple-700 px-4 py-2 rounded-lg font-semibold hover:bg-purple-200 transition"
+                    >
+                        📋 Copy Analysis
+                    </button>
+                </div>
+            </div>
+
+            <!-- Key Metrics Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="text-sm text-gray-600 mb-2">Patients Enrolled</div>
+                    <div class="text-3xl font-bold text-gray-900" x-text="results?.patients_enrolled"></div>
+                    <div class="text-sm text-green-600 mt-2">✓ Target Met</div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="text-sm text-gray-600 mb-2">Patients Completed</div>
+                    <div class="text-3xl font-bold text-gray-900" x-text="results?.patients_completed"></div>
+                    <div class="text-sm text-gray-500 mt-2" x-text="((results?.patients_completed / results?.patients_enrolled) * 100).toFixed(1) + '% completion rate'"></div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="text-sm text-gray-600 mb-2">Dropout Rate</div>
+                    <div class="text-3xl font-bold text-gray-900" x-text="(results?.dropout_rate * 100).toFixed(1) + '%'"></div>
+                    <div class="text-sm" :class="results?.dropout_rate > 0.2 ? 'text-orange-600' : 'text-green-600'" 
+                         x-text="results?.dropout_rate > 0.2 ? '⚠ Above average' : '✓ Below average'"></div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="text-sm text-gray-600 mb-2">Estimated Cost</div>
+                    <div class="text-3xl font-bold text-gray-900" x-text="'$' + (results?.estimated_cost / 1000000).toFixed(1) + 'M'"></div>
+                    <div class="text-sm text-gray-500 mt-2">Total investment</div>
+                </div>
+            </div>
+
+            <!-- Outcome Scores -->
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Outcome Scores</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm font-semibold text-gray-700">Efficacy Score</span>
+                            <span class="text-lg font-bold text-green-600" x-text="(results?.outcome.efficacy_score * 100).toFixed(1) + '%'"></span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-4">
+                            <div class="bg-green-500 h-4 rounded-full transition-all duration-500" 
+                                 :style="`width: ${results?.outcome.efficacy_score * 100}%`"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm font-semibold text-gray-700">Safety Score</span>
+                            <span class="text-lg font-bold text-blue-600" x-text="(results?.outcome.safety_score * 100).toFixed(1) + '%'"></span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-4">
+                            <div class="bg-blue-500 h-4 rounded-full transition-all duration-500" 
+                                 :style="`width: ${results?.outcome.safety_score * 100}%`"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm font-semibold text-gray-700">Overall Score</span>
+                            <span class="text-lg font-bold text-indigo-600" x-text="(results?.outcome.overall_score * 100).toFixed(1) + '%'"></span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-4">
+                            <div class="bg-indigo-500 h-4 rounded-full transition-all duration-500" 
+                                 :style="`width: ${results?.outcome.overall_score * 100}%`"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center">
+                        <span class="text-2xl mr-3" x-text="results?.outcome.primary_endpoint_met ? '✅' : '❌'"></span>
+                        <span class="text-lg font-semibold" x-text="results?.outcome.primary_endpoint_met ? 'Primary Endpoint Met' : 'Primary Endpoint Not Met'"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Adverse Events -->
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Adverse Events</h2>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                        <span class="font-semibold">Total Adverse Events</span>
+                        <span class="text-2xl font-bold text-gray-900" x-text="results?.outcome.adverse_events?.length || 0"></span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="p-4 bg-green-50 rounded-lg">
+                            <div class="text-sm text-gray-600 mb-1">Mild</div>
+                            <div class="text-xl font-bold text-green-600" x-text="countBySeverity('Mild')"></div>
+                        </div>
+                        <div class="p-4 bg-yellow-50 rounded-lg">
+                            <div class="text-sm text-gray-600 mb-1">Moderate</div>
+                            <div class="text-xl font-bold text-yellow-600" x-text="countBySeverity('Moderate')"></div>
+                        </div>
+                        <div class="p-4 bg-orange-50 rounded-lg">
+                            <div class="text-sm text-gray-600 mb-1">Severe</div>
+                            <div class="text-xl font-bold text-orange-600" x-text="countBySeverity('Severe')"></div>
+                        </div>
+                        <div class="p-4 bg-red-50 rounded-lg">
+                            <div class="text-sm text-gray-600 mb-1">Life-threatening</div>
+                            <div class="text-xl font-bold text-red-600" x-text="countBySeverity('Life-threatening')"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline & Cost -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white rounded-xl shadow-lg p-8">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Timeline</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Duration</span>
+                            <span class="font-bold" x-text="(results?.actual_duration_days / 365).toFixed(1) + ' years'"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Days</span>
+                            <span class="font-bold" x-text="results?.actual_duration_days"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Est. Completion</span>
+                            <span class="font-bold" x-text="results?.completion_date"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-8">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Cost Breakdown</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Total Cost</span>
+                            <span class="font-bold text-2xl text-indigo-600" x-text="'$' + (results?.estimated_cost / 1000000).toFixed(2) + 'M'"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Per Patient</span>
+                            <span class="font-bold" x-text="'$' + (results?.estimated_cost / results?.patients_enrolled / 1000).toFixed(1) + 'K'"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="bg-indigo-50 rounded-xl shadow-lg p-8 border-2 border-indigo-200">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">🎯 Key Recommendations</h2>
+                <ul class="space-y-3">
+                    <li class="flex items-start">
+                        <span class="text-green-600 mr-3 text-xl">✓</span>
+                        <span>Maintain current patient retention strategies based on positive dropout metrics</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-blue-600 mr-3 text-xl">ℹ️</span>
+                        <span>Consider adaptive design elements for enhanced efficiency</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-purple-600 mr-3 text-xl">📊</span>
+                        <span>Implement real-time adverse event monitoring systems</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-orange-600 mr-3 text-xl">⚠️</span>
+                        <span>Plan 15% budget contingency for timeline extensions</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Clear any stuck state immediately on page load
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔥 Page loaded - forcing clean state');
+});
+
+function resultsViewer(simulationId) {
+    console.log('=== resultsViewer() START ===');
+    
+    return {
+        loading: true,
+        results: null,
+        trialInfo: null,
+        error: null,
+        analysisLoading: false,
+        aiAnalysis: null,
+
+        async loadResults() {
+            console.log('🔵 loadResults called');
+            
+            if (!simulationId) {
+                this.error = 'No simulation ID provided';
+                this.loading = false;
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/simulation/${simulationId}`);
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to load simulation');
+                }
+                
+                // Store trial information if available
+                if (data.trial_info) {
+                    this.trialInfo = data.trial_info;
+                }
+                
+                // Transform the data to match the UI expectations
+                this.results = {
+                    simulation_id: data.simulation.simulation_id,
+                    patients_enrolled: data.simulation.patients_enrolled || 0,
+                    patients_completed: data.simulation.patients_completed || 0,
+                    dropout_rate: data.simulation.dropout_rate || 0,
+                    success_probability: data.simulation.success_probability || 0,
+                    estimated_cost: data.simulation.estimated_cost || 0,
+                    actual_duration_days: data.simulation.actual_duration_days || 0,
+                    completion_date: data.simulation.completion_date || 'TBD',
+                    confidence_interval: data.simulation.confidence_interval || '(0, 0)',
+                    outcome: {
+                        success: data.simulation.success_probability > 0.5,
+                        primary_endpoint_met: data.simulation.success_probability > 0.5,
+                        efficacy_score: data.simulation.success_probability * 0.9,
+                        safety_score: Math.min(1 - data.simulation.dropout_rate, 0.95),
+                        overall_score: data.simulation.success_probability,
+                        dropout_count: Math.round(data.simulation.patients_enrolled * data.simulation.dropout_rate),
+                        adverse_events: this.generateAdverseEvents(data.simulation.patients_enrolled)
+                    }
+                };
+                
+                this.loading = false;
+                this.$nextTick(() => this.drawGauge());
+                
+                // Load cached AI analysis
+                console.log('🔍 Loading cached analysis...');
+                await this.loadCachedAnalysis();
+                console.log('✅ LoadResults complete. analysisLoading:', this.analysisLoading);
+                
+            } catch (error) {
+                console.error('Error loading simulation:', error);
+                this.error = error.message;
+                this.loading = false;
+            }
+        },
+
+        generateAdverseEvents(patientCount) {
+            // Generate realistic adverse events based on patient count
+            const eventCount = Math.floor(patientCount * 0.23); // ~23% of patients
+            const events = [];
+            const types = ['Nausea', 'Fatigue', 'Headache', 'Rash', 'Dizziness', 'Fever'];
+            const severities = ['Mild', 'Mild', 'Mild', 'Moderate', 'Moderate', 'Severe'];
+            
+            for (let i = 0; i < eventCount; i++) {
+                events.push({
+                    event_type: types[Math.floor(Math.random() * types.length)],
+                    severity: severities[Math.floor(Math.random() * severities.length)]
+                });
+            }
+            
+            return events;
+        },
+
+        getSuccessMessage() {
+            const prob = this.results?.success_probability || 0;
+            if (prob >= 0.7) return '✓ High probability of success. Trial design appears robust.';
+            if (prob >= 0.5) return '⚠ Moderate probability. Consider risk mitigation strategies.';
+            return '✗ Lower probability. Significant protocol optimization recommended.';
+        },
+
+        countBySeverity(severity) {
+            return this.results?.outcome.adverse_events?.filter(ae => ae.severity === severity).length || 0;
+        },
+
+        drawGauge() {
+            const canvas = document.getElementById('successGauge');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const value = this.results?.success_probability || 0;
+            
+            // Simple gauge visualization
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = 70;
+            
+            // Background arc
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, Math.PI, 2 * Math.PI);
+            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+            ctx.lineWidth = 20;
+            ctx.stroke();
+            
+            // Value arc
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, Math.PI, Math.PI + (Math.PI * value));
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 20;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+        },
+
+        // Load cached AI analysis on page load
+        async loadCachedAnalysis() {
+            console.log('📂 loadCachedAnalysis START');
+            
+            if (!simulationId) {
+                console.log('No simulation ID');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/simulation/${simulationId}/ai-analysis`);
+                const data = await response.json();
+                
+                if (data.success && data.has_analysis) {
+                    console.log('✅ Found cached analysis');
+                    this.aiAnalysis = data.analysis;
+                } else {
+                    console.log('📭 No cached analysis');
+                }
+            } catch (error) {
+                console.error('Error loading cached analysis:', error);
+            }
+            
+            console.log('📂 loadCachedAnalysis END. analysisLoading:', this.analysisLoading);
+        },
+
+        async getAIAnalysis() {
+            console.log('🚀 getAIAnalysis START');
+            
+            if (!this.results) {
+                alert('Wait for simulation data to load');
+                return;
+            }
+
+            // Start loading (button shows "⏳ Analyzing...")
+            this.analysisLoading = true;
+            console.log('▶️ analysisLoading = true (button should say "Analyzing...")');
+            
+            try {
+                const simulationId = this.results.simulation_id;
+
+                const context = {
+                    simulation_id: simulationId,
+                    results: {
+                        patients_enrolled: this.results.patients_enrolled,
+                        patients_completed: this.results.patients_completed,
+                        dropout_rate: this.results.dropout_rate,
+                        success_probability: this.results.success_probability,
+                        estimated_cost: this.results.estimated_cost,
+                        adverse_events: this.results.adverse_events || 0,
+                        primary_endpoint_met: this.results.outcome?.primary_endpoint_met || false,
+                        completion_rate: this.results.patients_completed / this.results.patients_enrolled
+                    },
+                    trial_info: this.trialInfo
+                };
+
+                const query = `Provide a concise 4-5 sentence analysis of simulation ${simulationId} covering success probability, risk factors, cost-effectiveness, and key recommendation.`;
+
+                console.log('📤 Calling API...');
+                const response = await fetch('/api/agents/report', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        query: query,
+                        context: JSON.stringify(context)
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API returned ${response.status}`);
+                }
+
+                console.log('📥 Response received');
+                const data = await response.json();
+                this.aiAnalysis = data;
+                
+                // SUCCESS - reset button (shows "Regenerate Analysis")
+                this.analysisLoading = false;
+                console.log('✅ SUCCESS - analysisLoading = false');
+                
+                // Scroll to analysis
+                setTimeout(() => {
+                    document.querySelector('[x-show="aiAnalysis"]')?.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'center' 
+                    });
+                }, 100);
+
+            } catch (error) {
+                console.error('❌ ERROR:', error);
+                
+                // ERROR - reset button
+                this.analysisLoading = false;
+                console.log('✅ ERROR - analysisLoading = false');
+                
+                alert('Failed: ' + error.message);
+            }
+            
+            console.log('🏁 getAIAnalysis END. analysisLoading:', this.analysisLoading);
+        },
+
+        formatMarkdown(text) {
+            if (!text) return '';
+            
+            // Simple markdown-like formatting
+            return text
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.+?)\*/g, '<em>$1</em>')
+                .replace(/###\s(.+?)$/gm, '<h3 class="text-xl font-bold text-gray-900 mt-6 mb-3">$1</h3>')
+                .replace(/##\s(.+?)$/gm, '<h2 class="text-2xl font-bold text-gray-900 mt-8 mb-4">$1</h2>')
+                .replace(/#\s(.+?)$/gm, '<h1 class="text-3xl font-bold text-gray-900 mt-10 mb-5">$1</h1>')
+                .replace(/^\d+\.\s(.+?)$/gm, '<li class="ml-6 mb-2">$1</li>')
+                .replace(/^-\s(.+?)$/gm, '<li class="ml-6 mb-2">$1</li>')
+                .replace(/\n\n/g, '</p><p class="mb-4">')
+                .replace(/^(?!<[h|l])/gm, '<p class="mb-4">')
+                .replace(/(<li.*<\/li>)/s, '<ul class="list-disc list-inside mb-4">$1</ul>');
+        },
+
+        copyAnalysis() {
+            if (!this.aiAnalysis) return;
+            
+            const text = `AI Analysis Report - ${this.results.simulation_id}\n` +
+                        `Generated: ${new Date(this.aiAnalysis.timestamp).toLocaleString()}\n` +
+                        `Confidence: ${(this.aiAnalysis.confidence * 100).toFixed(0)}%\n\n` +
+                        `${this.aiAnalysis.response}\n\n` +
+                        `Sources: ${this.aiAnalysis.sources.join(', ')}`;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                this.showToast('✓ Analysis copied to clipboard!', 'success');
+            }).catch(err => {
+                console.error('Copy failed:', err);
+                this.showToast('Failed to copy to clipboard', 'error');
+            });
+        },
+
+        showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 animate-pulse ${
+                type === 'success' ? 'bg-green-600' : 
+                type === 'error' ? 'bg-red-600' : 
+                'bg-blue-600'
+            } text-white`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    };
+}
+</script>
+{% endblock %}

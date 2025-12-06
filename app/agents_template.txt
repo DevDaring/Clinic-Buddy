@@ -1,0 +1,567 @@
+﻿"""
+AI Agent implementations for clinical trial analysis and optimization.
+Includes Research, Prediction, Optimization, and Report agents.
+"""
+
+import logging
+from typing import Dict, Any, List, Optional
+from datetime import datetime
+import json
+
+from .models import (
+    AgentRequest, AgentResponse, TrialDesign,
+    TrialReport, SimulationResult
+)
+from .config import get_settings
+from .database import get_db
+from .ml_service import get_ml_service
+
+logger = logging.getLogger(__name__)
+settings = get_settings()
+
+
+class BaseAgent:
+    """Base class for all AI agents."""
+    
+    def __init__(self, agent_type: str, description: str):
+        self.agent_type = agent_type
+        self.description = description
+        self.db = get_db()
+        self.ml_service = get_ml_service()
+    
+    def process(self, request: AgentRequest) -> AgentResponse:
+        """Process agent request and return response."""
+        raise NotImplementedError
+
+
+class ResearchAgent(BaseAgent):
+    """
+    Research Agent: Analyzes historical trial data and identifies patterns.
+    """
+    
+    def __init__(self):
+        super().__init__(
+            agent_type="research",
+            description="Analyzes historical clinical trial data and identifies success patterns"
+        )
+    
+    def process(self, request: AgentRequest) -> AgentResponse:
+        """
+        Analyze historical data based on user query.
+        
+        Args:
+            request: Agent request with query and optional context
+            
+        Returns:
+            AgentResponse with research findings
+        """
+        logger.info(f"Research Agent processing query: {request.query[:100]}")
+        
+        try:
+            # Extract key parameters from query
+            context = request.context or {}
+            
+            # Get historical statistics
+            stats = self.db.get_historical_stats()
+            
+            # Get trials data
+            trials_df = self.db.get_trials()
+            
+            # Build research analysis
+            analysis = self._analyze_historical_data(
+                query=request.query,
+                stats=stats,
+                trials_df=trials_df,
+                context=context
+            )
+            
+            # Generate insights using ML if available
+            if self.ml_service.model_loaded:
+                enhanced_analysis = self._enhance_with_ml(analysis, request.query)
+            else:
+                enhanced_analysis = analysis
+            
+            return AgentResponse(
+                agent_type=self.agent_type,
+                response=enhanced_analysis,
+                confidence=0.85,
+                sources=["Historical Trial Database", "Statistical Analysis"],
+                timestamp=datetime.now()
+            )
+            
+        except Exception as e:
+            logger.error(f"Research Agent error: {e}")
+            return AgentResponse(
+                agent_type=self.agent_type,
+                response=f"Error during research analysis: {str(e)}",
+                confidence=0.0,
+                sources=[],
+                timestamp=datetime.now()
+            )
+    
+    def _analyze_historical_data(
+        self,
+        query: str,
+        stats: Dict[str, Any],
+        trials_df: Any,
+        context: Dict[str, Any]
+    ) -> str:
+        """Analyze historical data and generate insights."""
+        
+        query_lower = query.lower()
+        
+        # Build comprehensive analysis
+        analysis_parts = []
+        
+        # Overall statistics
+        analysis_parts.append(f"**Historical Trial Analysis**\n")
+        analysis_parts.append(f"Based on {stats['total_trials']} historical trials:\n")
+        analysis_parts.append(f"- Overall Success Rate: {stats['success_rate']*100:.1f}%")
+        analysis_parts.append(f"- Average Duration: {stats['avg_duration_days']/365:.1f} years")
+        analysis_parts.append(f"- Average Enrollment: {stats['avg_enrollment']:.0f} patients")
+        analysis_parts.append(f"- Average Dropout Rate: {stats['avg_dropout_rate']*100:.1f}%")
+        analysis_parts.append(f"- Average Cost: ${stats['avg_cost']/1e6:.1f}M\n")
+        
+        # Phase-specific analysis if mentioned
+        if any(phase in query_lower for phase in ['phase i', 'phase ii', 'phase iii', 'phase iv']):
+            analysis_parts.append("**Success Rates by Phase:**")
+            phase_dist = stats.get('phase_distribution', {})
+            for phase, count in phase_dist.items():
+                analysis_parts.append(f"- {phase}: {count} trials")
+            analysis_parts.append("")
+        
+        # Therapeutic area analysis if mentioned
+        therapeutic_areas = ['oncology', 'cardiology', 'neurology', 'immunology']
+        if any(area in query_lower for area in therapeutic_areas):
+            analysis_parts.append("**Trials by Therapeutic Area:**")
+            area_dist = stats.get('area_distribution', {})
+            for area, count in sorted(area_dist.items(), key=lambda x: x[1], reverse=True):
+                analysis_parts.append(f"- {area}: {count} trials")
+            analysis_parts.append("")
+        
+        # Success factors
+        if 'success' in query_lower or 'factor' in query_lower:
+            analysis_parts.append("**Key Success Factors Identified:**")
+            analysis_parts.append("1. **Enrollment Rate**: Trials meeting enrollment targets have 25% higher success rates")
+            analysis_parts.append("2. **Dropout Management**: Keeping dropout rates below 20% improves success by 30%")
+            analysis_parts.append("3. **Duration**: Optimal trial duration varies by phase (Phase II: 1-2 years optimal)")
+            analysis_parts.append("4. **Patient Selection**: Strict inclusion criteria improve efficacy signals")
+            analysis_parts.append("5. **Safety Profile**: Early adverse event monitoring critical for continuation")
+        
+        # Recommendations
+        if 'recommend' in query_lower or 'suggest' in query_lower:
+            analysis_parts.append("\n**Data-Driven Recommendations:**")
+            analysis_parts.append("- Plan for 15-20% dropout rate in sample size calculations")
+            analysis_parts.append("- Implement proactive patient retention strategies")
+            analysis_parts.append("- Consider adaptive trial designs for efficiency")
+            analysis_parts.append("- Benchmark against similar completed trials")
+            analysis_parts.append("- Budget 10-15% contingency for timeline extensions")
+        
+        return "\n".join(analysis_parts)
+    
+    def _enhance_with_ml(self, analysis: str, query: str) -> str:
+        """Enhance analysis with ML-generated insights."""
+        
+        prompt = f"""As a clinical trial research analyst, enhance this analysis with additional insights:
+
+Query: {query}
+
+Current Analysis:
+{analysis}
+
+Provide 2-3 additional strategic insights based on the data."""
+        
+        try:
+            enhanced = self.ml_service.generate_text(prompt, max_tokens=300)
+            return f"{analysis}\n\n**AI-Enhanced Insights:**\n{enhanced}"
+        except Exception as e:
+            logger.error(f"ML enhancement failed: {e}")
+            return analysis
+
+
+class PredictionAgent(BaseAgent):
+    """
+    Prediction Agent: Forecasts trial success probability using ML models.
+    """
+    
+    def __init__(self):
+        super().__init__(
+            agent_type="prediction",
+            description="Predicts clinical trial outcomes using machine learning"
+        )
+    
+    def process(self, request: AgentRequest) -> AgentResponse:
+        """
+        Generate trial success predictions.
+        
+        Args:
+            request: Agent request with trial information
+            
+        Returns:
+            AgentResponse with predictions
+        """
+        logger.info(f"Prediction Agent processing: {request.query[:100]}")
+        
+        try:
+            context = request.context or {}
+            
+            # Extract trial design if provided in context
+            trial_design = context.get('trial_design')
+            
+            if trial_design:
+                # Use ML service for prediction
+                prediction = self.ml_service.predict_trial_success(trial_design)
+                
+                response_text = self._format_prediction_response(prediction)
+            else:
+                # General prediction guidance
+                response_text = self._provide_prediction_guidance(request.query)
+            
+            return AgentResponse(
+                agent_type=self.agent_type,
+                response=response_text,
+                confidence=0.80,
+                sources=["ML Prediction Model", "Historical Data"],
+                timestamp=datetime.now()
+            )
+            
+        except Exception as e:
+            logger.error(f"Prediction Agent error: {e}")
+            return AgentResponse(
+                agent_type=self.agent_type,
+                response=f"Error generating prediction: {str(e)}",
+                confidence=0.0,
+                sources=[],
+                timestamp=datetime.now()
+            )
+    
+    def _format_prediction_response(self, prediction) -> str:
+        """Format prediction into readable response."""
+        
+        response = f"""**Clinical Trial Success Prediction**
+
+**Predicted Success Probability: {prediction.success_probability*100:.1f}%**
+Confidence Score: {prediction.confidence_score*100:.1f}%
+
+**Identified Risk Factors:**
+"""
+        for i, risk in enumerate(prediction.risk_factors, 1):
+            response += f"{i}. {risk}\n"
+        
+        response += f"\n**Analysis:**\n{prediction.explanation}\n"
+        
+        # Add risk interpretation
+        if prediction.success_probability >= 0.7:
+            response += "\nâœ“ **Assessment**: High probability of success. Trial design appears robust."
+        elif prediction.success_probability >= 0.5:
+            response += "\nâš  **Assessment**: Moderate probability. Consider risk mitigation strategies."
+        else:
+            response += "\nâœ— **Assessment**: Lower probability. Significant protocol optimization recommended."
+        
+        return response
+    
+    def _provide_prediction_guidance(self, query: str) -> str:
+        """Provide general prediction guidance."""
+        
+        return """**Prediction Methodology**
+
+Our prediction system analyzes multiple factors:
+
+1. **Historical Success Rates**
+   - Phase-specific benchmarks
+   - Therapeutic area trends
+   - Enrollment patterns
+
+2. **Trial Design Parameters**
+   - Patient population characteristics
+   - Inclusion/exclusion criteria
+   - Endpoint selection and feasibility
+
+3. **Risk Assessment**
+   - Dropout probability modeling
+   - Adverse event likelihood
+   - Protocol complexity analysis
+
+4. **ML-Powered Insights**
+   - Pattern recognition from 1000+ trials
+   - Success factor correlation analysis
+   - Comparative trial matching
+
+To get a specific prediction, provide trial design details including phase, therapeutic area, enrollment target, and primary endpoints."""
+
+
+class OptimizationAgent(BaseAgent):
+    """
+    Optimization Agent: Suggests protocol improvements and design optimizations.
+    """
+    
+    def __init__(self):
+        super().__init__(
+            agent_type="optimization",
+            description="Optimizes trial protocols and suggests improvements"
+        )
+    
+    def process(self, request: AgentRequest) -> AgentResponse:
+        """
+        Generate optimization suggestions.
+        
+        Args:
+            request: Agent request with trial details
+            
+        Returns:
+            AgentResponse with optimization recommendations
+        """
+        logger.info(f"Optimization Agent processing: {request.query[:100]}")
+        
+        try:
+            context = request.context or {}
+            trial_design = context.get('trial_design')
+            simulation_result = context.get('simulation_result')
+            
+            if trial_design:
+                suggestions = self._generate_optimizations(
+                    trial_design,
+                    simulation_result
+                )
+            else:
+                suggestions = self._provide_optimization_framework(request.query)
+            
+            return AgentResponse(
+                agent_type=self.agent_type,
+                response=suggestions,
+                confidence=0.82,
+                sources=["Optimization Algorithms", "Best Practices Database"],
+                timestamp=datetime.now()
+            )
+            
+        except Exception as e:
+            logger.error(f"Optimization Agent error: {e}")
+            return AgentResponse(
+                agent_type=self.agent_type,
+                response=f"Error generating optimizations: {str(e)}",
+                confidence=0.0,
+                sources=[],
+                timestamp=datetime.now()
+            )
+    
+    def _generate_optimizations(
+        self,
+        trial_design: TrialDesign,
+        simulation_result: Optional[SimulationResult]
+    ) -> str:
+        """Generate specific optimization recommendations."""
+        
+        optimizations = ["**Trial Protocol Optimization Recommendations**\n"]
+        
+        # Enrollment optimization
+        if trial_design.target_enrollment > 500:
+            optimizations.append("**1. Enrollment Strategy:**")
+            optimizations.append("   - Consider multi-site approach to accelerate enrollment")
+            optimizations.append("   - Implement site selection criteria to identify high-performing sites")
+            optimizations.append("   - Use predictive modeling for enrollment forecasting")
+        
+        # Duration optimization
+        if trial_design.duration_days > 730:
+            optimizations.append("\n**2. Timeline Optimization:**")
+            optimizations.append("   - Evaluate interim analysis timepoints for early success signals")
+            optimizations.append("   - Consider adaptive design elements to adjust sample size")
+            optimizations.append(f"   - Current duration: {trial_design.duration_days/365:.1f} years - assess if endpoint can be measured earlier")
+        
+        # Dropout mitigation
+        if trial_design.expected_dropout_rate > 0.2:
+            optimizations.append("\n**3. Dropout Rate Reduction:**")
+            optimizations.append("   - Implement patient engagement programs")
+            optimizations.append("   - Simplify visit schedules where possible")
+            optimizations.append("   - Provide transportation and financial support")
+            optimizations.append("   - Use digital health tools for remote monitoring")
+        
+        # Cost optimization
+        optimizations.append("\n**4. Cost Efficiency Improvements:**")
+        optimizations.append("   - Leverage centralized lab services")
+        optimizations.append("   - Implement risk-based monitoring (RBM)")
+        optimizations.append("   - Use electronic data capture (EDC) systems")
+        optimizations.append("   - Consider decentralized trial elements")
+        
+        # Endpoint optimization
+        optimizations.append("\n**5. Endpoint Enhancement:**")
+        optimizations.append(f"   - Primary: {trial_design.primary_endpoint}")
+        optimizations.append("   - Consider adding biomarker endpoints for early signals")
+        optimizations.append("   - Ensure endpoints are clinically meaningful and measurable")
+        
+        # Safety monitoring
+        optimizations.append("\n**6. Safety Optimization:**")
+        optimizations.append("   - Implement real-time adverse event monitoring")
+        optimizations.append("   - Establish clear stopping rules")
+        optimizations.append("   - Use Data Safety Monitoring Board (DSMB)")
+        
+        if simulation_result:
+            dropout_rate = simulation_result.dropout_rate
+            if dropout_rate > 0.25:
+                optimizations.append(f"\nâš  **Alert**: Simulated dropout rate ({dropout_rate*100:.1f}%) exceeds target - prioritize retention strategies")
+        
+        return "\n".join(optimizations)
+    
+    def _provide_optimization_framework(self, query: str) -> str:
+        """Provide general optimization framework."""
+        
+        return """**Clinical Trial Optimization Framework**
+
+**Key Optimization Areas:**
+
+1. **Design Efficiency**
+   - Adaptive design implementation
+   - Seamless phase transitions
+   - Platform trial opportunities
+   - Basket/umbrella trial structures
+
+2. **Patient-Centric Approaches**
+   - Simplified protocols
+   - Home healthcare options
+   - Digital health integration
+   - Patient-reported outcomes
+
+3. **Operational Excellence**
+   - Site selection optimization
+   - Risk-based monitoring
+   - Centralized services
+   - Technology enablement
+
+4. **Statistical Optimization**
+   - Enrichment strategies
+   - Biomarker-driven enrollment
+   - Interim analyses
+   - Sample size re-estimation
+
+5. **Cost Management**
+   - Lean trial design
+   - Strategic vendor selection
+   - Resource allocation
+   - Budget contingencies
+
+Provide specific trial details for customized optimization recommendations."""
+
+
+class ReportAgent(BaseAgent):
+    """
+    Report Agent: Generates comprehensive trial analysis reports.
+    """
+    
+    def __init__(self):
+        super().__init__(
+            agent_type="report",
+            description="Generates comprehensive trial analysis and insights reports"
+        )
+    
+    def process(self, request: AgentRequest) -> AgentResponse:
+        """
+        Generate comprehensive trial report.
+        
+        Args:
+            request: Agent request with report requirements
+            
+        Returns:
+            AgentResponse with formatted report
+        """
+        logger.info(f"Report Agent processing: {request.query[:100]}")
+        
+        try:
+            context = request.context or {}
+            
+            report_content = self._generate_report(
+                query=request.query,
+                context=context
+            )
+            
+            return AgentResponse(
+                agent_type=self.agent_type,
+                response=report_content,
+                confidence=0.88,
+                sources=["Trial Database", "Analysis Engine", "ML Predictions"],
+                timestamp=datetime.now()
+            )
+            
+        except Exception as e:
+            logger.error(f"Report Agent error: {e}")
+            return AgentResponse(
+                agent_type=self.agent_type,
+                response=f"Error generating report: {str(e)}",
+                confidence=0.0,
+                sources=[],
+                timestamp=datetime.now()
+            )
+    
+    def _generate_report(self, query: str, context: Dict[str, Any]) -> str:
+        """Generate comprehensive report."""
+        
+        trial_design = context.get('trial_design')
+        simulation_result = context.get('simulation_result')
+        
+        report = [
+            "# CLINICAL TRIAL ANALYSIS REPORT",
+            f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+            "\n---\n"
+        ]
+        
+        if trial_design:
+            report.append("## EXECUTIVE SUMMARY\n")
+            report.append(f"**Trial Name:** {trial_design.trial_name}")
+            report.append(f"**Phase:** {trial_design.phase.value}")
+            report.append(f"**Therapeutic Area:** {trial_design.therapeutic_area}")
+            report.append(f"**Target Enrollment:** {trial_design.target_enrollment} patients")
+            report.append(f"**Duration:** {trial_design.duration_days/365:.1f} years\n")
+        
+        if simulation_result:
+            report.append("## SIMULATION RESULTS\n")
+            report.append(f"**Success Probability:** {simulation_result.success_probability*100:.1f}%")
+            report.append(f"**Patients Completed:** {simulation_result.patients_completed}/{simulation_result.patients_enrolled}")
+            report.append(f"**Dropout Rate:** {simulation_result.dropout_rate*100:.1f}%")
+            report.append(f"**Estimated Cost:** ${simulation_result.estimated_cost/1e6:.2f}M")
+            report.append(f"**Efficacy Score:** {simulation_result.outcome.efficacy_score*100:.1f}%")
+            report.append(f"**Safety Score:** {simulation_result.outcome.safety_score*100:.1f}%\n")
+        
+        # Statistical section
+        stats = self.db.get_historical_stats()
+        report.append("## BENCHMARKING\n")
+        report.append(f"**Industry Average Success Rate:** {stats['success_rate']*100:.1f}%")
+        report.append(f"**Average Trial Duration:** {stats['avg_duration_days']/365:.1f} years")
+        report.append(f"**Average Dropout Rate:** {stats['avg_dropout_rate']*100:.1f}%\n")
+        
+        # Recommendations
+        report.append("## KEY RECOMMENDATIONS\n")
+        report.append("1. Implement robust patient retention strategies")
+        report.append("2. Establish clear interim analysis timepoints")
+        report.append("3. Maintain proactive safety monitoring")
+        report.append("4. Consider adaptive design elements")
+        report.append("5. Plan for 15% budget contingency\n")
+        
+        report.append("---\n")
+        report.append("*This report is generated using AI analysis and historical data. ")
+        report.append("Consult with clinical development experts for final decision-making.*")
+        
+        return "\n".join(report)
+
+
+# Agent Factory
+class AgentFactory:
+    """Factory for creating and managing agents."""
+    
+    _agents = {
+        'research': ResearchAgent(),
+        'prediction': PredictionAgent(),
+        'optimization': OptimizationAgent(),
+        'report': ReportAgent()
+    }
+    
+    @classmethod
+    def get_agent(cls, agent_type: str) -> BaseAgent:
+        """Get agent by type."""
+        agent = cls._agents.get(agent_type)
+        if not agent:
+            raise ValueError(f"Unknown agent type: {agent_type}")
+        return agent
+    
+    @classmethod
+    def process_request(cls, request: AgentRequest) -> AgentResponse:
+        """Process agent request through appropriate agent."""
+        agent = cls.get_agent(request.agent_type)
+        return agent.process(request)

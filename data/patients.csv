@@ -1,0 +1,5 @@
+patient_id,age,gender,ethnicity,weight_kg,height_cm,bmi,comorbidities,enrollment_date,trial_id
+PAT-10001,54,Female,Caucasian,68.5,165.0,25.2,Hypertension,2022-03-15,NCT04521789
+PAT-10002,62,Male,African American,85.2,178.0,26.9,Diabetes,2021-06-01,NCT04389654
+PAT-10003,71,Female,Asian,58.3,160.0,22.8,None,2023-01-10,NCT04198765
+PAT-10004,48,Male,Hispanic,92.1,182.0,27.8,Multiple,2020-09-20,NCT04567234
