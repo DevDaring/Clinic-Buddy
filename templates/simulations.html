@@ -302,8 +302,12 @@
         const therapeuticArea = trialInfo.therapeutic_area || sim.indication || 'N/A';
 
         return `
-            <div class="simulation-card">
-                <div class="p-6">
+            <div class="simulation-card relative overflow-hidden">
+                <!-- Subtle Background Pattern -->
+                <div class="absolute inset-0 opacity-5">
+                    <img src="/static/images/simulation-bg.png" alt="" class="w-full h-full object-cover" onerror="this.style.display='none';">
+                </div>
+                <div class="relative p-6">
                     <!-- Header -->
                     <div class="flex items-start justify-between mb-4">
                         <div class="flex-1">

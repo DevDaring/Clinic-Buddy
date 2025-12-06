@@ -3,9 +3,17 @@
 {% block title %}Clinic-Buddy - Dashboard{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<div class="gradient-bg text-white py-20">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<!-- Hero Section with Background Image -->
+<div class="relative text-white py-20 overflow-hidden">
+    <!-- Background Image with Overlay -->
+    <div class="absolute inset-0 z-0">
+        <img src="/static/images/hero-banner.png" alt="Clinical Trial Background" 
+             class="w-full h-full object-cover" 
+             onerror="this.style.display='none';">
+        <div class="absolute inset-0 bg-gradient-to-r from-blue-900/90 via-blue-800/85 to-cyan-900/90"></div>
+    </div>
+    
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center">
             <h1 class="text-5xl md:text-6xl font-bold mb-6">
                 Welcome to Clinic-Buddy
