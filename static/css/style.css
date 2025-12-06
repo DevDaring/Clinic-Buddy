@@ -57,11 +57,63 @@ body {
 .text-gray-400 { color: #94a3b8 !important; }
 .text-gray-300 { color: #cbd5e1 !important; }
 
+/* ==================== LIGHT BACKGROUND SECTIONS (Results Page) ==================== */
+/* Keep light backgrounds light, but ensure text inside is dark/readable */
+
+/* Colored light backgrounds - convert to dark variants */
+.bg-indigo-50, .bg-blue-50, .bg-purple-50, .bg-green-50, 
+.bg-yellow-50, .bg-orange-50, .bg-red-50, .bg-cyan-50,
+.bg-gradient-to-r.from-blue-50, .bg-gradient-to-r.from-indigo-50,
+.bg-gradient-to-r.from-purple-50, .bg-gradient-to-br.from-purple-50 {
+    background: var(--bg-card) !important;
+}
+
+/* Gradient backgrounds that should be dark */
+[class*="from-blue-50"][class*="to-indigo-50"],
+[class*="from-purple-50"][class*="to-indigo-50"],
+[class*="from-purple-50"][class*="via-indigo-50"] {
+    background: var(--bg-card) !important;
+}
+
+/* Text inside result cards - ensure readable */
+.bg-indigo-50 .text-gray-900,
+.bg-indigo-50 .text-gray-800,
+.bg-indigo-50 .text-gray-700,
+.bg-indigo-50 .text-gray-600,
+.bg-indigo-50 .text-indigo-900,
+.bg-blue-50 .text-gray-900,
+.bg-blue-50 .text-gray-600,
+.bg-purple-50 .text-gray-900,
+.bg-purple-50 .text-gray-600,
+.bg-green-50 .text-gray-600,
+.bg-yellow-50 .text-gray-600,
+.bg-orange-50 .text-gray-600,
+.bg-red-50 .text-gray-600 {
+    color: var(--text-primary) !important;
+}
+
+/* Prose content in AI analysis */
+.prose, .prose-lg {
+    color: var(--text-primary) !important;
+}
+
+.prose p, .prose li, .prose span {
+    color: var(--text-primary) !important;
+}
+
+/* Recommendations section */
+.bg-indigo-50 span,
+.bg-indigo-50 li span:last-child {
+    color: var(--text-primary) !important;
+}
+
 /* Border overrides */
 .border-gray-200 { border-color: var(--border-color) !important; }
 .border-gray-300 { border-color: var(--border-color) !important; }
 .border-gray-600 { border-color: var(--border-color) !important; }
 .border-gray-700 { border-color: var(--border-color) !important; }
+.border-indigo-200 { border-color: var(--accent-primary) !important; }
+.border-purple-300 { border-color: #a855f7 !important; }
 
 /* Card shadows */
 .shadow-lg {
@@ -297,4 +349,18 @@ pre, code {
     .tour-step h3 {
         font-size: 1.5rem;
     }
+}
+
+/* ==================== CHAT MESSAGES ==================== */
+
+/* AI/Assistant message bubble - ensure dark text on light background */
+#chatMessages .bg-gradient-to-r.from-gray-50.to-gray-100,
+#chatMessages [class*="from-gray-50"][class*="to-gray-100"] {
+    background: linear-gradient(to right, #f9fafb, #f3f4f6) !important;
+}
+
+#chatMessages .bg-gradient-to-r.from-gray-50.to-gray-100 p,
+#chatMessages [class*="from-gray-50"][class*="to-gray-100"] p,
+#chatMessages .text-gray-800 {
+    color: #1f2937 !important;
 }
