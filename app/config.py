@@ -40,13 +40,7 @@ class Settings(BaseSettings):
     VERTEX_AI_LOCATION: str = "us-central1"
     GOOGLE_API_KEY: Optional[str] = None
     
-    # Model Configuration (from .env)
-    LOCAL_MODEL: Optional[int] = None  # 1 = use local model, 0 = use API
-    HUGGINGFACE_MODEL_URL: Optional[str] = None  # HuggingFace model URL from .env
-    HF_TOKEN: Optional[str] = None  # HuggingFace token for gated models
-    GEMINI_API_KEY: Optional[str] = None  # Gemini API key (kept for backward compatibility)
-    GEMINI_MODEL_NAME: str = "gemini-2.5-flash"  # Gemini model (kept for backward compatibility)
-    
+   
     # AWS Bedrock Configuration (Claude Sonnet 4.5)
     AWS_USER_NAME: Optional[str] = None
     AWS_ACCESS_KEY_ID: Optional[str] = None

@@ -45,11 +45,7 @@ except Exception as e:
 class AgentRouter:
     """
     Intelligent router for agent requests.
-    
-    Automatically routes to:
-    1. Google ADK agents (Gemini 2.0 Flash) when available
-    2. Fallback agents (rule-based) as backup
-    
+
     Provides seamless failover and detailed logging.
     """
     
