@@ -35,9 +35,10 @@ async def lifespan(app: FastAPI):
     Handles startup and shutdown events.
     """
     # Startup
-    logger.info("="*60)
-    logger.info("Starting Clinical Trial Simulator & Predictor")
-    logger.info("="*60)
+    logger.info("="*78)
+    logger.info("  Clinic-Buddy - Clinical Trial Simulator & Predictor")
+    logger.info("  Developed with Cursor | Powered by Claude Sonnet 4.5 (AWS Bedrock)")
+    logger.info("="*78)
     
     # Setup directories
     setup_directories()
@@ -49,26 +50,27 @@ async def lifespan(app: FastAPI):
     
     # Initialize ML service
     ml_service = get_ml_service()
-    logger.info(f"ML Service ready. Device: {ml_service.device}")
     
     # Log model configuration
-    model_config = "LOCAL MODEL" if ml_service.use_local_model else "GEMINI API"
-    logger.info(f"Model Configuration: {model_config}")
-    
-    # Load model on startup if using local model
     if ml_service.use_local_model:
+        logger.info(f"AI Model: LOCAL MODEL (Device: {ml_service.device})")
         logger.info("Starting model download/loading (this may take a few minutes on first run)...")
         if ml_service.load_model():
             logger.info("✓ Model loaded successfully on startup")
         else:
             logger.warning("✗ Failed to load model on startup - will retry on first request")
     else:
-        # Log Gemini API info
+        # Log AWS Bedrock API info
         model_info = ml_service.get_model_info()
-        logger.info(f"Gemini API Configured: {model_info.get('gemini_api_configured')}")
+        bedrock_ready = model_info.get('aws_bedrock_configured', False)
+        logger.info(f"AI Model: AWS Bedrock - Claude Sonnet 4.5")
+        logger.info(f"AWS Bedrock Status: {'✓ Connected' if bedrock_ready else '✗ Not Available'}")
+    
+    # Log Google Cloud Voice services
+    logger.info("Voice Services: Google Cloud (Speech-to-Text & Text-to-Speech)")
     
     logger.info(f"Application started on http://{settings.APP_HOST}:{settings.APP_PORT}")
-    logger.info("="*60)
+    logger.info("="*78)
     
     yield
     

@@ -3,34 +3,34 @@
 {% block title %}Update Simulation - Clinic-Buddy{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50 py-12">
+<div class="min-h-screen py-12">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="mb-8">
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <h1 class="text-4xl font-bold text-gray-900 mb-2">Update Simulation</h1>
-                    <p class="text-gray-600">Modify simulation parameters and data</p>
+                    <h1 class="text-4xl font-bold mb-2">Update Simulation</h1>
+                    <p class="text-gray-500">Modify simulation parameters and data</p>
                 </div>
-                <a href="/simulations" class="text-indigo-600 hover:text-indigo-700 font-semibold">
-                    ← Back to Simulations
+                <a href="/simulations" class="text-blue-400 hover:text-blue-300 font-semibold">
+                    <i class="fas fa-arrow-left mr-1"></i> Back to Simulations
                 </a>
             </div>
         </div>
 
         <!-- Loading State -->
-        <div id="loadingState" class="bg-white rounded-lg shadow-md p-12 text-center">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-            <p class="text-gray-600">Loading simulation data...</p>
+        <div id="loadingState" class="card-hover rounded-lg p-12 text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p class="text-gray-500">Loading simulation data...</p>
         </div>
 
         <!-- Error State -->
-        <div id="errorState" class="hidden bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+        <div id="errorState" class="hidden bg-red-900/20 border border-red-500 rounded-lg p-6 text-center">
             <svg class="w-12 h-12 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            <h3 class="text-xl font-bold text-red-800 mb-2">Failed to Load Simulation</h3>
-            <p class="text-red-600 mb-4" id="errorMessage"></p>
+            <h3 class="text-xl font-bold text-red-400 mb-2">Failed to Load Simulation</h3>
+            <p class="text-red-300 mb-4" id="errorMessage"></p>
             <a href="/simulations" class="inline-block bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition">
                 Back to Simulations
             </a>
@@ -39,8 +39,8 @@
         <!-- Update Form -->
         <div id="updateForm" class="hidden">
             <!-- Trial Information Card (Read-only) -->
-            <div id="trialInfoCard" class="hidden bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-indigo-200 rounded-lg p-6 mb-6">
-                <h3 class="text-xl font-bold text-indigo-900 mb-4 flex items-center">
+            <div id="trialInfoCard" class="hidden bg-blue-500/20 border-2 border-blue-500 rounded-lg p-6 mb-6">
+                <h3 class="text-xl font-bold text-blue-400 mb-4 flex items-center">
                     <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
@@ -48,69 +48,69 @@
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <p class="text-sm text-gray-600">Trial ID</p>
-                        <p class="font-bold text-gray-900" id="trialId">-</p>
+                        <p class="text-sm text-gray-500">Trial ID</p>
+                        <p class="font-bold" id="trialId">-</p>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-600">Status</p>
-                        <p class="font-bold text-gray-900" id="trialStatus">-</p>
+                        <p class="text-sm text-gray-500">Status</p>
+                        <p class="font-bold" id="trialStatus">-</p>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-600">Therapeutic Area</p>
-                        <p class="font-bold text-gray-900" id="trialTherapeuticArea">-</p>
+                        <p class="text-sm text-gray-500">Therapeutic Area</p>
+                        <p class="font-bold" id="trialTherapeuticArea">-</p>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-600">Historical Success</p>
-                        <p class="font-bold text-gray-900" id="trialSuccess">-</p>
+                        <p class="text-sm text-gray-500">Historical Success</p>
+                        <p class="font-bold" id="trialSuccess">-</p>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-600">Start Date</p>
-                        <p class="font-bold text-gray-900" id="trialStartDate">-</p>
+                        <p class="text-sm text-gray-500">Start Date</p>
+                        <p class="font-bold" id="trialStartDate">-</p>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-600">Completion Date</p>
-                        <p class="font-bold text-gray-900" id="trialCompletionDate">-</p>
+                        <p class="text-sm text-gray-500">Completion Date</p>
+                        <p class="font-bold" id="trialCompletionDate">-</p>
                     </div>
                 </div>
             </div>
 
-            <form id="simulationForm" class="bg-white rounded-lg shadow-md p-8">
+            <form id="simulationForm" class="card-hover rounded-lg p-8">
                 <!-- Simulation ID (Read-only) -->
-                <div class="mb-6 bg-indigo-50 border border-indigo-200 rounded-lg p-4">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                <div class="mb-6 bg-blue-500/20 border border-blue-500 rounded-lg p-4">
+                    <label class="block text-sm font-semibold mb-2">
                         Simulation ID
                     </label>
-                    <p class="text-lg font-mono font-bold text-indigo-900" id="displaySimulationId"></p>
+                    <p class="text-lg font-mono font-bold text-blue-400" id="displaySimulationId"></p>
                 </div>
 
                 <!-- Trial Information -->
                 <div class="mb-8">
-                    <h3 class="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-indigo-600">
+                    <h3 class="text-xl font-bold mb-4 pb-2 border-b-2 border-blue-500">
                         Trial Information
                     </h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label for="trial_name" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <label for="trial_name" class="block text-sm font-semibold mb-2">
                                 Trial Name
                             </label>
                             <input
                                 type="text"
                                 id="trial_name"
                                 name="trial_name"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"
                                 required
                             >
                         </div>
 
                         <div>
-                            <label for="trial_phase" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <label for="trial_phase" class="block text-sm font-semibold mb-2">
                                 Trial Phase
                             </label>
                             <select
                                 id="trial_phase"
                                 name="trial_phase"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"
                                 required
                             >
                                 <option value="Phase I">Phase I</option>
@@ -121,27 +121,27 @@
                         </div>
 
                         <div>
-                            <label for="drug_name" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <label for="drug_name" class="block text-sm font-semibold mb-2">
                                 Drug Name
                             </label>
                             <input
                                 type="text"
                                 id="drug_name"
                                 name="drug_name"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"
                                 required
                             >
                         </div>
 
                         <div>
-                            <label for="indication" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <label for="indication" class="block text-sm font-semibold mb-2">
                                 Indication / Target Disease
                             </label>
                             <input
                                 type="text"
                                 id="indication"
                                 name="indication"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"
                                 required
                             >
                         </div>
@@ -150,13 +150,13 @@
 
                 <!-- Patient Statistics -->
                 <div class="mb-8">
-                    <h3 class="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-indigo-600">
+                    <h3 class="text-xl font-bold mb-4 pb-2 border-b-2 border-blue-500">
                         Patient Statistics
                     </h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
-                            <label for="patients_enrolled" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <label for="patients_enrolled" class="block text-sm font-semibold mb-2">
                                 Patients Enrolled
                             </label>
                             <input
@@ -164,13 +164,13 @@
                                 id="patients_enrolled"
                                 name="patients_enrolled"
                                 min="0"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"
                                 required
                             >
                         </div>
 
                         <div>
-                            <label for="patients_completed" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <label for="patients_completed" class="block text-sm font-semibold mb-2">
                                 Patients Completed
                             </label>
                             <input
@@ -178,13 +178,13 @@
                                 id="patients_completed"
                                 name="patients_completed"
                                 min="0"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"
                                 required
                             >
                         </div>
 
                         <div>
-                            <label for="dropout_rate" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <label for="dropout_rate" class="block text-sm font-semibold mb-2">
                                 Dropout Rate (%)
                             </label>
                             <input
@@ -194,7 +194,7 @@
                                 min="0"
                                 max="100"
                                 step="0.1"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"
                                 required
                             >
                         </div>
@@ -203,13 +203,13 @@
 
                 <!-- Trial Outcomes -->
                 <div class="mb-8">
-                    <h3 class="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-indigo-600">
+                    <h3 class="text-xl font-bold mb-4 pb-2 border-b-2 border-blue-500">
                         Trial Outcomes
                     </h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label for="success_probability" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <label for="success_probability" class="block text-sm font-semibold mb-2">
                                 Success Probability (0-1)
                             </label>
                             <input
@@ -219,19 +219,19 @@
                                 min="0"
                                 max="1"
                                 step="0.01"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"
                                 required
                             >
                         </div>
 
                         <div>
-                            <label for="primary_endpoint_met" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <label for="primary_endpoint_met" class="block text-sm font-semibold mb-2">
                                 Primary Endpoint Met
                             </label>
                             <select
                                 id="primary_endpoint_met"
                                 name="primary_endpoint_met"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"
                                 required
                             >
                                 <option value="true">Yes</option>
@@ -240,7 +240,7 @@
                         </div>
 
                         <div>
-                            <label for="adverse_events" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <label for="adverse_events" class="block text-sm font-semibold mb-2">
                                 Adverse Events
                             </label>
                             <input
@@ -248,13 +248,13 @@
                                 id="adverse_events"
                                 name="adverse_events"
                                 min="0"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"
                                 required
                             >
                         </div>
 
                         <div>
-                            <label for="serious_adverse_events" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <label for="serious_adverse_events" class="block text-sm font-semibold mb-2">
                                 Serious Adverse Events
                             </label>
                             <input
@@ -262,7 +262,7 @@
                                 id="serious_adverse_events"
                                 name="serious_adverse_events"
                                 min="0"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"
                                 required
                             >
                         </div>
@@ -271,13 +271,13 @@
 
                 <!-- Timeline -->
                 <div class="mb-8">
-                    <h3 class="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-indigo-600">
+                    <h3 class="text-xl font-bold mb-4 pb-2 border-b-2 border-blue-500">
                         Timeline & Duration
                     </h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label for="duration_days" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <label for="duration_days" class="block text-sm font-semibold mb-2">
                                 Duration (Days)
                             </label>
                             <input
@@ -285,13 +285,13 @@
                                 id="duration_days"
                                 name="duration_days"
                                 min="0"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"
                                 required
                             >
                         </div>
 
                         <div>
-                            <label for="estimated_cost" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <label for="estimated_cost" class="block text-sm font-semibold mb-2">
                                 Estimated Cost ($)
                             </label>
                             <input
@@ -300,7 +300,7 @@
                                 name="estimated_cost"
                                 min="0"
                                 step="0.01"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"
                                 required
                             >
                         </div>
@@ -308,21 +308,21 @@
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex items-center justify-between pt-6 border-t-2 border-gray-200">
-                    <a href="/simulations" class="text-gray-600 hover:text-gray-800 font-semibold">
+                <div class="flex items-center justify-between pt-6 border-t-2 border-gray-600/30">
+                    <a href="/simulations" class="text-gray-500 hover:text-gray-300 font-semibold">
                         Cancel
                     </a>
                     <div class="space-x-4">
                         <button
                             type="button"
                             onclick="resetForm()"
-                            class="px-6 py-3 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 transition"
+                            class="px-6 py-3 border border-gray-500 rounded-lg font-semibold hover:bg-gray-700 transition"
                         >
                             Reset Changes
                         </button>
                         <button
                             type="submit"
-                            class="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition"
+                            class="px-6 py-3 gradient-bg text-white rounded-lg font-semibold hover:opacity-90 transition"
                         >
                             Update Simulation
                         </button>
@@ -331,14 +331,14 @@
             </form>
 
             <!-- Success Message -->
-            <div id="successMessage" class="hidden mt-6 bg-green-50 border border-green-200 rounded-lg p-6">
+            <div id="successMessage" class="hidden mt-6 bg-green-500/20 border border-green-500 rounded-lg p-6">
                 <div class="flex items-center">
                     <svg class="w-6 h-6 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                     <div>
-                        <h4 class="text-lg font-bold text-green-800">Simulation Updated Successfully!</h4>
-                        <p class="text-green-600 mt-1">Your changes have been saved.</p>
+                        <h4 class="text-lg font-bold text-green-400">Simulation Updated Successfully!</h4>
+                        <p class="text-green-300 mt-1">Your changes have been saved.</p>
                     </div>
                 </div>
             </div>

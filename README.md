@@ -97,7 +97,7 @@ A full-featured FastAPI web application that simulates clinical trial outcomes w
 - Success probability calculation
 - Parameter sensitivity analysis
 
-### 3. **AI Agent System** (Gemini 2.5 Flash)
+### 3. **AI Agent System** (AWS Bedrock Claude Sonnet 4.5)
 - **Research Agent**: Analyzes historical trial data patterns
 - **Prediction Agent**: Forecasts trial success probability  
 - **Optimization Agent**: Suggests protocol improvements
@@ -115,7 +115,7 @@ A full-featured FastAPI web application that simulates clinical trial outcomes w
   - Cost-effectiveness evaluation
   - Protocol optimization recommendations
 - **Visual Display**: Formatted report with confidence score, sources, and timestamp
-- **Smart Routing**: Automatically uses Google ADK (Gemini 2.0 Flash) or falls back to rule-based agents
+- **Smart Routing**: Automatically uses AWS Bedrock (Claude Sonnet 4.5) or falls back to rule-based agents
 - **Copy & Export**: One-click copy analysis to clipboard
 
 ### 4. **Interactive Simulation Management**
@@ -228,7 +228,7 @@ Cloud_Run_Hack/
 │   ├── config.py               # Environment configuration & settings
 │   ├── models.py               # Pydantic models & data schemas
 │   ├── routes.py               # API endpoints (REST + voice)
-│   ├── agents.py               # AI agent implementations (Gemini)
+│   ├── agents.py               # AI agent implementations (AWS Bedrock)
 │   ├── agent_router.py         # Agent routing & orchestration
 │   ├── chatbot.py              # Multilingual chat service
 │   ├── speech_service.py       # Google Cloud Speech & TTS integration
@@ -236,7 +236,7 @@ Cloud_Run_Hack/
 │   ├── database.py             # CSV data operations & management
 │   ├── auth.py                 # Authentication & password hashing
 │   ├── location_tracker.py     # Login location tracking (NEW)
-│   ├── ml_service.py           # ML model service (Gemini API)
+│   ├── ml_service.py           # ML model service (AWS Bedrock API)
 │   ├── logging_config.py       # Centralized logging configuration
 │   └── fallback_agents.py      # Rule-based fallback agents
 │
@@ -308,7 +308,7 @@ Cloud_Run_Hack/
 
 ### Backend
 - **FastAPI**: High-performance async web framework
-- **Google Gemini 2.5 Flash**: AI agent orchestration & chat
+- **AWS Bedrock Claude Sonnet 4.5**: AI agent orchestration & chat
 - **Google Cloud Speech-to-Text**: Voice transcription (v1, WebM/Opus)
 - **Google Cloud Text-to-Speech**: Voice synthesis (v1, MP3 output)
 - **httpx**: Async HTTP client for IP geolocation API calls
@@ -328,7 +328,7 @@ Cloud_Run_Hack/
 - **MP3**: Audio playback format
 
 ### AI/ML
-- **Google Gemini 2.5 Flash**: Primary LLM for agents & chat
+- **AWS Bedrock Claude Sonnet 4.5**: Primary LLM for agents & chat
 - **LangChain**: Agent framework (optional local model support)
 - **Gemma 3-4B**: Alternative local model (HuggingFace)
 
@@ -354,7 +354,7 @@ Cloud_Run_Hack/
 3. User clicks stop → Audio blob created
 4. POST /api/chat/transcribe → Google Speech-to-Text
 5. Transcribed text displayed in chat
-6. POST /api/chat/message → Gemini processes request
+6. POST /api/chat/message → AWS Bedrock Claude processes request
 7. Bot response displayed in chat
 8. POST /api/chat/text-to-speech → Google TTS
 9. Audio auto-plays with stop button visible
@@ -503,17 +503,18 @@ GET    /api/outcomes          # Get outcome statistics
 ## 🔐 Environment Variables (.env)
 
 ```env
-# Google Cloud & API Keys
-GOOGLE_API_KEY=your-google-api-key                    # Google API key
-GEMINI_API_KEY=your-gemini-api-key                    # Gemini API key (primary)
-GEMINI_MODEL_NAME=gemini-2.5-flash                    # Gemini model version
+# AWS Bedrock Configuration
+AWS_ACCESS_KEY_ID=your-aws-access-key                 # AWS Access Key
+AWS_SECRET_ACCESS_KEY=your-aws-secret-key             # AWS Secret Key
+AWS_REGION=us-east-1                                  # AWS Region
+AWS_SONNET_45=us.anthropic.claude-sonnet-4-5-20250929-v1:0  # Claude Sonnet 4.5 Model ID
 
-# Google Cloud Speech & TTS
+# Google Cloud Speech & TTS (for voice features)
 GOOGLE_APPLICATION_CREDENTIALS=secrets/speech_key.json # Service account key file path
 # Note: GCP_PROJECT_ID and GCP_CLIENT_EMAIL are in the JSON file
 
 # Model Configuration
-LOCAL_MODEL=0                                          # 0 = Gemini API, 1 = Local model
+LOCAL_MODEL=0                                          # 0 = AWS Bedrock API, 1 = Local model
 HUGGINGFACE_MODEL_URL=google/gemma-3-4b-it            # HuggingFace model (if LOCAL_MODEL=1)
 HF_TOKEN=your-huggingface-token                       # HuggingFace API token
 MODEL_PATH=./models/gemma                             # Local model storage path
@@ -783,7 +784,7 @@ docker run -p 8000:8000 \
      --region us-central1 \
      --allow-unauthenticated \
      --set-secrets=GOOGLE_APPLICATION_CREDENTIALS=speech-sa-key:latest \
-     --set-env-vars="GEMINI_API_KEY=your-key,GOOGLE_API_KEY=your-key" \
+     --set-env-vars="AWS_ACCESS_KEY_ID=your-key,AWS_SECRET_ACCESS_KEY=your-secret,AWS_REGION=us-east-1" \
      --memory 2Gi \
      --cpu 2 \
      --timeout 300
@@ -919,18 +920,18 @@ MIT License - Feel free to use and modify
 
 ## 🏆 Achievements
 
-Built for **Google Cloud Run Hackathon** featuring:
-- ✅ Google Cloud Platform integration
-- ✅ Gemini 2.5 Flash AI
-- ✅ Cloud Speech & TTS APIs
-- ✅ Serverless deployment (Cloud Run)
+Built for **Cursor x Anthropic Hackathon Malaysia** featuring:
+- ✅ AWS Bedrock Claude Sonnet 4.5 AI
+- ✅ Developed with Cursor IDE
+- ✅ Google Cloud Speech & TTS APIs
+- ✅ Serverless deployment ready
 - ✅ Innovative voice UI
 - ✅ Real-world healthcare application
 - ✅ Complete production-ready stack
 
 ---
 
-**Built with ❤️ using Google Cloud Technologies**
+**Built with ❤️ using Cursor IDE & AWS Bedrock Claude Sonnet 4.5**
 
 🎤 Voice-enabled | 🤖 AI-powered | 🌍 Multi-lingual | 🚀 Production-ready
 
@@ -944,7 +945,7 @@ Built for **Google Cloud Run Hackathon** featuring:
 - **Interactive Control**: Stop audio playback anytime with dedicated button
 
 ### 🤖 AI-Powered Intelligence
-- **Gemini 2.5 Flash**: Latest Google AI for natural conversations
+- **AWS Bedrock Claude Sonnet 4.5**: Latest Anthropic AI for natural conversations
 - **Context-Aware**: Maintains conversation history and user preferences
 - **Multi-language**: Automatically detects and responds in user's language
 - **Smart Updates**: Confirms changes before modifying simulation data

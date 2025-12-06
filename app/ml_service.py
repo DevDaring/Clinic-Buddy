@@ -196,7 +196,7 @@ class MLModelService:
         temperature: Optional[float] = None
     ) -> str:
         """
-        Generate text using the loaded model or Gemini API.
+        Generate text using the loaded model or AWS Bedrock API.
         
         Args:
             prompt: Input prompt
@@ -267,7 +267,7 @@ class MLModelService:
         historical_context: Optional[str] = None
     ) -> PredictionResponse:
         """
-        Predict trial success probability using ML model (local or Gemini API).
+        Predict trial success probability using ML model (local or AWS Bedrock API).
         
         Args:
             trial_design: Trial design parameters

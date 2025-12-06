@@ -9,3 +9,4 @@ timestamp,user_id,username,ip_address,country,region,city,latitude,longitude,isp
 2025-11-09 17:57:18,2,user1,127.0.0.1,India,West Bengal,Barrackpore,22.7691703,88.3784609,GPS Location (±20m),Unknown
 2025-11-09 17:59:05,2,user1,127.0.0.1,Unknown,Unknown,GPS Denied or Unavailable,0.0,0.0,No GPS Data,Unknown
 2025-11-09 18:19:01,2,user1,127.0.0.1,India,West Bengal,Kolkata,22.560768,88.375296,GPS Location (±57520m),Unknown
+2025-12-06 23:47:46,2,user1,127.0.0.1,India,West Bengal,Kolkata,22.5378304,88.3687424,GPS Location (±227049m),Unknown

@@ -3,54 +3,54 @@
 {% block title %}All Simulations - Clinic-Buddy{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50 py-12">
+<div class="min-h-screen py-12 bg-gray-900">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="mb-8">
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <h1 class="text-4xl font-bold text-gray-900 mb-2">All Clinical Trial Simulations</h1>
-                    <p class="text-gray-600">Browse and explore all historical trial simulations</p>
+                    <h1 class="text-4xl font-bold mb-2 text-gray-100">All Clinical Trial Simulations</h1>
+                    <p class="text-gray-400">Browse and explore all historical trial simulations</p>
                 </div>
-                <a href="/simulator" class="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition">
+                <a href="/simulator" class="gradient-bg text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition">
                     + New Simulation
                 </a>
             </div>
             
             <!-- Stats Summary -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-                <div class="bg-white rounded-lg shadow-md p-4">
-                    <p class="text-sm text-gray-600 mb-1">Total Simulations</p>
-                    <p class="text-2xl font-bold text-indigo-600" id="totalCount">0</p>
+                <div class="stat-card">
+                    <p class="text-sm text-gray-500 mb-1">Total Simulations</p>
+                    <p class="text-2xl font-bold text-blue-500" id="totalCount">0</p>
                 </div>
-                <div class="bg-white rounded-lg shadow-md p-4">
-                    <p class="text-sm text-gray-600 mb-1">Avg Success Rate</p>
-                    <p class="text-2xl font-bold text-green-600" id="avgSuccess">0%</p>
+                <div class="stat-card">
+                    <p class="text-sm text-gray-500 mb-1">Avg Success Rate</p>
+                    <p class="text-2xl font-bold text-green-500" id="avgSuccess">0%</p>
                 </div>
-                <div class="bg-white rounded-lg shadow-md p-4">
-                    <p class="text-sm text-gray-600 mb-1">Avg Patients</p>
-                    <p class="text-2xl font-bold text-blue-600" id="avgPatients">0</p>
+                <div class="stat-card">
+                    <p class="text-sm text-gray-500 mb-1">Avg Patients</p>
+                    <p class="text-2xl font-bold text-cyan-500" id="avgPatients">0</p>
                 </div>
-                <div class="bg-white rounded-lg shadow-md p-4">
-                    <p class="text-sm text-gray-600 mb-1">Completed Trials</p>
-                    <p class="text-2xl font-bold text-purple-600" id="completedCount">0</p>
+                <div class="stat-card">
+                    <p class="text-sm text-gray-500 mb-1">Completed Trials</p>
+                    <p class="text-2xl font-bold text-purple-500" id="completedCount">0</p>
                 </div>
             </div>
         </div>
 
         <!-- Search and Filter -->
-        <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+        <div class="card-hover rounded-lg p-4 mb-6">
             <div class="flex flex-col md:flex-row gap-4">
                 <div class="flex-1">
                     <input 
                         type="text" 
                         id="searchInput" 
                         placeholder="Search by simulation ID, trial name, or drug..." 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"
                         onkeyup="filterSimulations()"
                     >
                 </div>
-                <select id="sortSelect" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" onchange="sortSimulations()">
+                <select id="sortSelect" class="px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500" onchange="sortSimulations()">
                     <option value="date_desc">Newest First</option>
                     <option value="date_asc">Oldest First</option>
                     <option value="success_desc">Highest Success Rate</option>
@@ -63,30 +63,30 @@
 
         <!-- Loading State -->
         <div id="loadingState" class="text-center py-12">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-            <p class="text-gray-600">Loading simulations...</p>
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p class="text-gray-500">Loading simulations...</p>
         </div>
 
         <!-- Error State -->
-        <div id="errorState" class="hidden bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+        <div id="errorState" class="hidden bg-red-900/20 border border-red-500 rounded-lg p-6 text-center">
             <svg class="w-12 h-12 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            <h3 class="text-xl font-bold text-red-800 mb-2">Failed to Load Simulations</h3>
-            <p class="text-red-600 mb-4" id="errorMessage"></p>
+            <h3 class="text-xl font-bold text-red-400 mb-2">Failed to Load Simulations</h3>
+            <p class="text-red-300 mb-4" id="errorMessage"></p>
             <button onclick="loadSimulations()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition">
                 Retry
             </button>
         </div>
 
         <!-- Empty State -->
-        <div id="emptyState" class="hidden bg-white rounded-lg shadow-md p-12 text-center">
-            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div id="emptyState" class="hidden card-hover rounded-lg p-12 text-center">
+            <svg class="w-16 h-16 text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
             </svg>
-            <h3 class="text-xl font-bold text-gray-700 mb-2">No Simulations Found</h3>
-            <p class="text-gray-600 mb-6">Start by creating your first clinical trial simulation</p>
-            <a href="/simulator" class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition">
+            <h3 class="text-xl font-bold mb-2">No Simulations Found</h3>
+            <p class="text-gray-500 mb-6">Start by creating your first clinical trial simulation</p>
+            <a href="/simulator" class="inline-block gradient-bg text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition">
                 Create Simulation
             </a>
         </div>
@@ -98,12 +98,12 @@
 
         <!-- Pagination -->
         <div id="pagination" class="hidden mt-8 flex justify-center items-center space-x-2">
-            <button onclick="previousPage()" id="prevBtn" class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
-                ← Previous
+            <button onclick="previousPage()" id="prevBtn" class="px-4 py-2 card-hover rounded-lg transition">
+                <i class="fas fa-arrow-left mr-2"></i> Previous
             </button>
-            <span id="pageInfo" class="text-gray-600 px-4">Page 1 of 1</span>
-            <button onclick="nextPage()" id="nextBtn" class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
-                Next →
+            <span id="pageInfo" class="text-gray-500 px-4">Page 1 of 1</span>
+            <button onclick="nextPage()" id="nextBtn" class="px-4 py-2 card-hover rounded-lg transition">
+                Next <i class="fas fa-arrow-right ml-2"></i>
             </button>
         </div>
     </div>
@@ -261,8 +261,8 @@
 
         if (filteredSimulations.length === 0) {
             simulationsGrid.innerHTML = `
-                <div class="col-span-full bg-white rounded-lg shadow-md p-12 text-center">
-                    <p class="text-gray-600">No simulations match your search criteria</p>
+                <div class="col-span-full card-hover rounded-lg p-12 text-center">
+                    <p class="text-gray-500">No simulations match your search criteria</p>
                 </div>
             `;
             pagination.classList.add('hidden');
@@ -291,7 +291,7 @@
 
     function createSimulationCard(sim) {
         const successRate = ((sim.success_probability || 0) * 100).toFixed(1);
-        const successColor = successRate >= 70 ? 'text-green-600' : successRate >= 50 ? 'text-yellow-600' : 'text-red-600';
+        const successColor = successRate >= 70 ? 'text-green-500' : successRate >= 50 ? 'text-yellow-500' : 'text-red-500';
         const createdDate = sim.created_at ? new Date(sim.created_at).toLocaleDateString() : 'N/A';
         
         // Extract trial information
@@ -302,17 +302,17 @@
         const therapeuticArea = trialInfo.therapeutic_area || sim.indication || 'N/A';
 
         return `
-            <div class="bg-white rounded-lg shadow-md hover:shadow-xl transition overflow-hidden">
+            <div class="simulation-card">
                 <div class="p-6">
                     <!-- Header -->
                     <div class="flex items-start justify-between mb-4">
                         <div class="flex-1">
-                            <h3 class="text-lg font-bold text-gray-900 mb-1" style="word-break: break-word;">
+                            <h3 class="text-lg font-bold mb-1" style="word-break: break-word;">
                                 ${sim.simulation_id || 'N/A'}
                             </h3>
-                            <p class="text-sm text-gray-600">${trialName}</p>
+                            <p class="text-sm text-gray-500">${trialName}</p>
                         </div>
-                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-600">
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-blue-500/20 text-blue-400">
                             ${trialPhase}
                         </span>
                     </div>
@@ -320,31 +320,31 @@
                     <!-- Drug and Indication -->
                     <div class="mb-4 space-y-2">
                         <div class="flex items-center text-sm">
-                            <span class="text-gray-600 w-24">Drug:</span>
-                            <span class="font-medium text-gray-900">${drugName}</span>
+                            <span class="text-gray-500 w-24">Drug:</span>
+                            <span class="font-medium">${drugName}</span>
                         </div>
                         <div class="flex items-center text-sm">
-                            <span class="text-gray-600 w-24">Therapeutic:</span>
-                            <span class="font-medium text-gray-900">${therapeuticArea}</span>
+                            <span class="text-gray-500 w-24">Therapeutic:</span>
+                            <span class="font-medium">${therapeuticArea}</span>
                         </div>
                         ${trialInfo.trial_id ? `
                         <div class="flex items-center text-sm">
-                            <span class="text-gray-600 w-24">Trial ID:</span>
-                            <span class="font-medium text-gray-700 text-xs">${trialInfo.trial_id}</span>
+                            <span class="text-gray-500 w-24">Trial ID:</span>
+                            <span class="font-medium text-xs">${trialInfo.trial_id}</span>
                         </div>
                         ` : ''}
                     </div>
 
                     <!-- Stats -->
-                    <div class="border-t border-gray-200 pt-4 grid grid-cols-2 gap-4 mb-4">
+                    <div class="border-t border-gray-600/30 pt-4 grid grid-cols-2 gap-4 mb-4">
                         <div>
-                            <p class="text-xs text-gray-600 mb-1">Patients</p>
-                            <p class="text-lg font-bold text-blue-600">
+                            <p class="text-xs text-gray-500 mb-1">Patients</p>
+                            <p class="text-lg font-bold text-blue-400">
                                 ${sim.patients_enrolled || 0}
                             </p>
                         </div>
                         <div>
-                            <p class="text-xs text-gray-600 mb-1">Success Rate</p>
+                            <p class="text-xs text-gray-500 mb-1">Success Rate</p>
                             <p class="text-lg font-bold ${successColor}">
                                 ${successRate}%
                             </p>
@@ -352,29 +352,29 @@
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="border-t border-gray-200 pt-4 space-y-2">
+                    <div class="border-t border-gray-600/30 pt-4 space-y-2">
                         <div class="flex items-center justify-between gap-2">
                             <a href="/results?simulation_id=${sim.simulation_id}" 
-                               class="flex-1 text-center px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg font-semibold hover:bg-indigo-100 transition"
+                               class="flex-1 text-center px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg font-semibold hover:bg-blue-500/30 transition"
                                onclick="event.stopPropagation()">
-                                📊 View
+                                <i class="fas fa-chart-bar mr-1"></i> View
                             </a>
                             <a href="/update-simulation?simulation_id=${sim.simulation_id}" 
-                               class="flex-1 text-center px-4 py-2 bg-green-50 text-green-600 rounded-lg font-semibold hover:bg-green-100 transition"
+                               class="flex-1 text-center px-4 py-2 bg-green-500/20 text-green-400 rounded-lg font-semibold hover:bg-green-500/30 transition"
                                onclick="event.stopPropagation()">
-                                ✏️ Update
+                                <i class="fas fa-edit mr-1"></i> Update
                             </a>
                         </div>
                         <a href="/results?simulation_id=${sim.simulation_id}" 
-                           class="block w-full text-center px-4 py-2 bg-gradient-to-r from-purple-50 to-indigo-50 text-purple-700 rounded-lg font-semibold hover:from-purple-100 hover:to-indigo-100 transition border border-purple-200"
+                           class="block w-full text-center px-4 py-2 gradient-bg text-white rounded-lg font-semibold hover:opacity-90 transition"
                            onclick="event.stopPropagation()">
-                            📊 View Analysis
+                            <i class="fas fa-chart-line mr-1"></i> View Analysis
                         </a>
                     </div>
 
                     <!-- Footer -->
-                    <div class="mt-4 pt-4 border-t border-gray-200 text-xs text-gray-500 text-center">
-                        📅 ${createdDate}
+                    <div class="mt-4 pt-4 border-t border-gray-600/30 text-xs text-gray-500 text-center">
+                        <i class="fas fa-calendar mr-1"></i> ${createdDate}
                     </div>
                 </div>
             </div>

@@ -4,50 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API Documentation - Clinic-Buddy Clinical Trial Platform</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
     <style>
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .endpoint-card {
-            transition: all 0.3s ease;
-        }
-        .endpoint-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a !important; color: #f1f5f9 !important; }
         .method-get { background-color: #10b981; }
         .method-post { background-color: #3b82f6; }
         .method-put { background-color: #f59e0b; }
         .method-delete { background-color: #ef4444; }
     </style>
 </head>
-<body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 min-h-screen">
+<body class="min-h-screen bg-gray-900">
     <!-- Header -->
     <header class="gradient-bg text-white py-8 shadow-xl">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center">
                 <div>
                     <h1 class="text-4xl font-bold mb-2">Clinic-Buddy API Documentation</h1>
-                    <p class="text-indigo-100">Clinical Trial Simulator & Predictor - RESTful API v1.0</p>
+                    <p class="text-blue-100">Clinical Trial Simulator & Predictor - RESTful API v1.0</p>
                 </div>
-                <a href="/" class="bg-white text-indigo-600 px-6 py-3 rounded-lg font-semibold hover:bg-indigo-50 transition">
-                    ← Home
-                </a>
+                <div class="flex items-center space-x-4">
+                    <a href="/" class="bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-600 transition">
+                        <i class="fas fa-arrow-left mr-2"></i> Home
+                    </a>
+                </div>
             </div>
         </div>
     </header>
 
     <!-- Navigation -->
-    <nav class="bg-white shadow-md sticky top-0 z-10">
+    <nav class="shadow-md sticky top-0 z-10">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex space-x-6 py-4 overflow-x-auto">
-                <a href="#authentication" class="text-gray-700 hover:text-indigo-600 font-semibold whitespace-nowrap">🔐 Authentication</a>
-                <a href="#simulation" class="text-gray-700 hover:text-indigo-600 font-semibold whitespace-nowrap">🎯 Simulation</a>
-                <a href="#prediction" class="text-gray-700 hover:text-indigo-600 font-semibold whitespace-nowrap">📊 Prediction</a>
-                <a href="#chat" class="text-gray-700 hover:text-indigo-600 font-semibold whitespace-nowrap">💬 Chat</a>
-                <a href="#trials" class="text-gray-700 hover:text-indigo-600 font-semibold whitespace-nowrap">📋 Trials</a>
-                <a href="#interactive" class="text-gray-700 hover:text-indigo-600 font-semibold whitespace-nowrap">🚀 Interactive Docs</a>
+                <a href="#authentication" class="nav-link font-semibold whitespace-nowrap"><i class="fas fa-lock mr-1"></i> Authentication</a>
+                <a href="#simulation" class="nav-link font-semibold whitespace-nowrap"><i class="fas fa-flask mr-1"></i> Simulation</a>
+                <a href="#prediction" class="nav-link font-semibold whitespace-nowrap"><i class="fas fa-chart-line mr-1"></i> Prediction</a>
+                <a href="#chat" class="nav-link font-semibold whitespace-nowrap"><i class="fas fa-comments mr-1"></i> Chat</a>
+                <a href="#trials" class="nav-link font-semibold whitespace-nowrap"><i class="fas fa-clipboard-list mr-1"></i> Trials</a>
+                <a href="#interactive" class="nav-link font-semibold whitespace-nowrap"><i class="fas fa-rocket mr-1"></i> Interactive Docs</a>
             </div>
         </div>
     </nav>
@@ -55,41 +52,41 @@
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 py-12">
         <!-- Introduction -->
-        <section class="bg-white rounded-2xl shadow-lg p-8 mb-8">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4">Getting Started</h2>
-            <p class="text-gray-700 mb-4">
+        <section class="endpoint-card rounded-2xl shadow-lg p-8 mb-8">
+            <h2 class="text-3xl font-bold mb-4">Getting Started</h2>
+            <p class="text-gray-500 mb-4">
                 The Clinic-Buddy API provides powerful endpoints for clinical trial simulation, prediction, and management. 
                 All API responses are in JSON format.
             </p>
-            <div class="bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded">
-                <p class="font-semibold text-indigo-900">Base URL:</p>
-                <code class="text-indigo-700">http://localhost:8000/api</code>
+            <div class="bg-blue-500/20 border-l-4 border-blue-500 p-4 rounded">
+                <p class="font-semibold text-blue-400">Base URL:</p>
+                <code class="text-blue-300">http://localhost:8000/api</code>
             </div>
         </section>
 
         <!-- Authentication Section -->
         <section id="authentication" class="mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 mb-6">🔐 Authentication</h2>
+            <h2 class="text-3xl font-bold mb-6"><i class="fas fa-lock mr-2 text-blue-400"></i> Authentication</h2>
             
             <!-- Login -->
-            <div class="endpoint-card bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div class="endpoint-card rounded-xl shadow-lg p-6 mb-6">
                 <div class="flex items-center mb-4">
                     <span class="method-post text-white px-3 py-1 rounded-md font-bold text-sm mr-3">POST</span>
-                    <code class="text-lg font-mono text-gray-800">/api/login</code>
+                    <code class="text-lg font-mono">/api/login</code>
                 </div>
-                <p class="text-gray-700 mb-4">Authenticate user and receive JWT token</p>
+                <p class="text-gray-500 mb-4">Authenticate user and receive JWT token</p>
                 
-                <div class="bg-gray-50 rounded-lg p-4 mb-4">
-                    <p class="font-semibold text-gray-800 mb-2">Request Body:</p>
-                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto"><code>{
+                <div class="rounded-lg p-4 mb-4" style="background-color: var(--bg-hover);">
+                    <p class="font-semibold mb-2">Request Body:</p>
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto"><code>{
   "username": "user1",
   "password": "Cloud_Run-25"
 }</code></pre>
                 </div>
 
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <p class="font-semibold text-gray-800 mb-2">Response:</p>
-                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto"><code>{
+                <div class="rounded-lg p-4" style="background-color: var(--bg-hover);">
+                    <p class="font-semibold mb-2">Response:</p>
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto"><code>{
   "success": true,
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "user": {
@@ -102,16 +99,16 @@
             </div>
 
             <!-- Register -->
-            <div class="endpoint-card bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div class="endpoint-card rounded-xl shadow-lg p-6 mb-6">
                 <div class="flex items-center mb-4">
                     <span class="method-post text-white px-3 py-1 rounded-md font-bold text-sm mr-3">POST</span>
-                    <code class="text-lg font-mono text-gray-800">/api/register</code>
+                    <code class="text-lg font-mono">/api/register</code>
                 </div>
-                <p class="text-gray-700 mb-4">Register a new user account</p>
+                <p class="text-gray-500 mb-4">Register a new user account</p>
                 
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <p class="font-semibold text-gray-800 mb-2">Request Body:</p>
-                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto"><code>{
+                <div class="rounded-lg p-4" style="background-color: var(--bg-hover);">
+                    <p class="font-semibold mb-2">Request Body:</p>
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto"><code>{
   "username": "newuser",
   "email": "newuser@example.com",
   "password": "SecurePassword123",
@@ -124,28 +121,28 @@
 
         <!-- Simulation Section -->
         <section id="simulation" class="mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 mb-6">🎯 Simulation</h2>
+            <h2 class="text-3xl font-bold mb-6"><i class="fas fa-flask mr-2 text-blue-400"></i> Simulation</h2>
             
             <!-- Run Simulation -->
-            <div class="endpoint-card bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div class="endpoint-card rounded-xl shadow-lg p-6 mb-6">
                 <div class="flex items-center mb-4">
                     <span class="method-post text-white px-3 py-1 rounded-md font-bold text-sm mr-3">POST</span>
-                    <code class="text-lg font-mono text-gray-800">/api/simulate</code>
+                    <code class="text-lg font-mono">/api/simulate</code>
                 </div>
-                <p class="text-gray-700 mb-4">Run a clinical trial simulation</p>
+                <p class="text-gray-500 mb-4">Run a clinical trial simulation</p>
                 
-                <div class="bg-gray-50 rounded-lg p-4 mb-4">
-                    <p class="font-semibold text-gray-800 mb-2">Request Body:</p>
-                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto"><code>{
+                <div class="rounded-lg p-4 mb-4" style="background-color: var(--bg-hover);">
+                    <p class="font-semibold mb-2">Request Body:</p>
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto"><code>{
   "trial_id": "NCT04521789",
   "user_id": "1",
   "username": "user1"
 }</code></pre>
                 </div>
 
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <p class="font-semibold text-gray-800 mb-2">Response:</p>
-                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto"><code>{
+                <div class="rounded-lg p-4" style="background-color: var(--bg-hover);">
+                    <p class="font-semibold mb-2">Response:</p>
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto"><code>{
   "success": true,
   "simulation_id": "study_of_immunox_101_7842",
   "patients_enrolled": 200,
@@ -158,16 +155,16 @@
             </div>
 
             <!-- Get Simulation -->
-            <div class="endpoint-card bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div class="endpoint-card rounded-xl shadow-lg p-6 mb-6">
                 <div class="flex items-center mb-4">
                     <span class="method-get text-white px-3 py-1 rounded-md font-bold text-sm mr-3">GET</span>
-                    <code class="text-lg font-mono text-gray-800">/api/simulation/{simulation_id}</code>
+                    <code class="text-lg font-mono">/api/simulation/{simulation_id}</code>
                 </div>
-                <p class="text-gray-700 mb-4">Get detailed results for a specific simulation</p>
+                <p class="text-gray-500 mb-4">Get detailed results for a specific simulation</p>
                 
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <p class="font-semibold text-gray-800 mb-2">Response:</p>
-                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto"><code>{
+                <div class="rounded-lg p-4" style="background-color: var(--bg-hover);">
+                    <p class="font-semibold mb-2">Response:</p>
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto"><code>{
   "success": true,
   "simulation": {
     "simulation_id": "study_of_immunox_101_7842",
@@ -184,26 +181,26 @@
 
         <!-- Chat Section -->
         <section id="chat" class="mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 mb-6">💬 Chat Assistant</h2>
+            <h2 class="text-3xl font-bold mb-6"><i class="fas fa-comments mr-2 text-blue-400"></i> Chat Assistant</h2>
             
             <!-- Send Message -->
-            <div class="endpoint-card bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div class="endpoint-card rounded-xl shadow-lg p-6 mb-6">
                 <div class="flex items-center mb-4">
                     <span class="method-post text-white px-3 py-1 rounded-md font-bold text-sm mr-3">POST</span>
-                    <code class="text-lg font-mono text-gray-800">/api/chat/message</code>
+                    <code class="text-lg font-mono">/api/chat/message</code>
                 </div>
-                <p class="text-gray-700 mb-4">Send a message to the AI chat assistant (supports English, Hindi, Bengali)</p>
+                <p class="text-gray-500 mb-4">Send a message to the AI chat assistant (supports English, Hindi, Bengali)</p>
                 
-                <div class="bg-gray-50 rounded-lg p-4 mb-4">
-                    <p class="font-semibold text-gray-800 mb-2">Request Body (Form Data):</p>
-                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto"><code>message: "Show my simulations"
+                <div class="rounded-lg p-4 mb-4" style="background-color: var(--bg-hover);">
+                    <p class="font-semibold mb-2">Request Body (Form Data):</p>
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto"><code>message: "Show my simulations"
 user_id: "1"
 username: "user1"</code></pre>
                 </div>
 
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <p class="font-semibold text-gray-800 mb-2">Response:</p>
-                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto"><code>{
+                <div class="rounded-lg p-4" style="background-color: var(--bg-hover);">
+                    <p class="font-semibold mb-2">Response:</p>
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto"><code>{
   "success": true,
   "response": "Here are your simulations: study_of_immunox_101_7842...",
   "language": "en",
@@ -213,39 +210,39 @@ username: "user1"</code></pre>
             </div>
 
             <!-- Get Chat History -->
-            <div class="endpoint-card bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div class="endpoint-card rounded-xl shadow-lg p-6 mb-6">
                 <div class="flex items-center mb-4">
                     <span class="method-get text-white px-3 py-1 rounded-md font-bold text-sm mr-3">GET</span>
-                    <code class="text-lg font-mono text-gray-800">/api/chat/history?user_id={user_id}</code>
+                    <code class="text-lg font-mono">/api/chat/history?user_id={user_id}</code>
                 </div>
-                <p class="text-gray-700 mb-4">Retrieve chat history for a user</p>
+                <p class="text-gray-500 mb-4">Retrieve chat history for a user</p>
             </div>
 
             <!-- Get User Simulations -->
-            <div class="endpoint-card bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div class="endpoint-card rounded-xl shadow-lg p-6 mb-6">
                 <div class="flex items-center mb-4">
                     <span class="method-get text-white px-3 py-1 rounded-md font-bold text-sm mr-3">GET</span>
-                    <code class="text-lg font-mono text-gray-800">/api/chat/user-simulations?user_id={user_id}</code>
+                    <code class="text-lg font-mono">/api/chat/user-simulations?user_id={user_id}</code>
                 </div>
-                <p class="text-gray-700 mb-4">Get all simulations for a user (for chat context)</p>
+                <p class="text-gray-500 mb-4">Get all simulations for a user (for chat context)</p>
             </div>
         </section>
 
         <!-- Trials Section -->
         <section id="trials" class="mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 mb-6">📋 Clinical Trials</h2>
+            <h2 class="text-3xl font-bold mb-6"><i class="fas fa-clipboard-list mr-2 text-blue-400"></i> Clinical Trials</h2>
             
             <!-- Get All Trials -->
-            <div class="endpoint-card bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div class="endpoint-card rounded-xl shadow-lg p-6 mb-6">
                 <div class="flex items-center mb-4">
                     <span class="method-get text-white px-3 py-1 rounded-md font-bold text-sm mr-3">GET</span>
-                    <code class="text-lg font-mono text-gray-800">/api/trials</code>
+                    <code class="text-lg font-mono">/api/trials</code>
                 </div>
-                <p class="text-gray-700 mb-4">Get list of all available clinical trials</p>
+                <p class="text-gray-500 mb-4">Get list of all available clinical trials</p>
                 
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <p class="font-semibold text-gray-800 mb-2">Response:</p>
-                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto"><code>{
+                <div class="rounded-lg p-4" style="background-color: var(--bg-hover);">
+                    <p class="font-semibold mb-2">Response:</p>
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto"><code>{
   "success": true,
   "trials": [
     {
@@ -262,17 +259,17 @@ username: "user1"</code></pre>
 
         <!-- Interactive Docs -->
         <section id="interactive" class="mb-12">
-            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl shadow-2xl p-8 text-white">
-                <h2 class="text-3xl font-bold mb-4">🚀 Interactive API Documentation</h2>
-                <p class="text-indigo-100 mb-6">
+            <div class="gradient-bg rounded-2xl shadow-2xl p-8 text-white">
+                <h2 class="text-3xl font-bold mb-4"><i class="fas fa-rocket mr-2"></i> Interactive API Documentation</h2>
+                <p class="text-blue-100 mb-6">
                     For interactive API testing with Swagger UI and detailed schema documentation, visit:
                 </p>
-                <div class="flex space-x-4">
-                    <a href="/api/docs" target="_blank" class="bg-white text-indigo-600 px-6 py-3 rounded-lg font-semibold hover:bg-indigo-50 transition inline-block">
-                        📖 Swagger UI Docs
+                <div class="flex flex-wrap gap-4">
+                    <a href="/docs" target="_blank" class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition inline-flex items-center">
+                        <i class="fas fa-book mr-2"></i> Swagger UI Docs
                     </a>
-                    <a href="/api/redoc" target="_blank" class="bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-800 transition inline-block">
-                        📚 ReDoc Documentation
+                    <a href="/redoc" target="_blank" class="bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-800 transition inline-flex items-center">
+                        <i class="fas fa-file-alt mr-2"></i> ReDoc Documentation
                     </a>
                 </div>
             </div>
@@ -280,11 +277,17 @@ username: "user1"</code></pre>
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-8 mt-12">
+    <footer class="py-8 mt-12">
         <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="text-gray-400">© 2025 Clinic-Buddy Clinical Trial Platform - API Documentation v1.0</p>
-            <p class="text-blue-400 text-sm mt-2">Cursor x Anthropic Hackathon Malaysia</p>
+            <p class="text-gray-500">&copy; 2025 Clinic-Buddy Clinical Trial Platform - API Documentation v1.0</p>
+            <p class="mt-2">
+                <span class="hackathon-badge inline-flex items-center">
+                    <i class="fas fa-trophy mr-2"></i>
+                    Cursor x Anthropic Hackathon Malaysia
+                </span>
+            </p>
         </div>
     </footer>
+
 </body>
 </html>

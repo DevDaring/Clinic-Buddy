@@ -1,47 +1,117 @@
 /* Custom styles for Clinic-Buddy Clinical Trial Simulator */
-/* Dark Theme with Modest Colors */
+/* Dark Theme with High Contrast */
+
+/* ==================== DARK THEME COLORS ==================== */
 
 :root {
-    --bg-primary: #0f1419;
-    --bg-secondary: #1a1f2e;
-    --bg-card: #1e2538;
-    --bg-hover: #252d3d;
-    --text-primary: #e7e9ea;
-    --text-secondary: #8b98a5;
-    --text-muted: #6e7681;
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-card: #1e293b;
+    --bg-hover: #334155;
+    --bg-input: #334155;
+    --text-primary: #f1f5f9;
+    --text-secondary: #e2e8f0;
+    --text-muted: #94a3b8;
     --accent-primary: #3b82f6;
-    --accent-secondary: #0ea5e9;
-    --accent-success: #10b981;
+    --accent-secondary: #06b6d4;
+    --accent-success: #22c55e;
     --accent-warning: #f59e0b;
     --accent-danger: #ef4444;
-    --border-color: #2d3748;
+    --border-color: #475569;
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --gradient-start: #1e40af;
+    --gradient-end: #7c3aed;
+    --nav-bg: #1e293b;
+    --footer-bg: #0f172a;
+    --code-bg: #0f172a;
+}
+
+/* ==================== BASE STYLES ==================== */
+
+html {
+    scroll-behavior: smooth;
 }
 
 body {
     background-color: var(--bg-primary) !important;
-    color: var(--text-primary);
+    color: var(--text-primary) !important;
 }
 
-/* Dark theme overrides */
-.bg-gray-50 { background-color: var(--bg-primary) !important; }
+/* ==================== TAILWIND DARK OVERRIDES ==================== */
+
+/* Background overrides */
 .bg-white { background-color: var(--bg-card) !important; }
+.bg-gray-50 { background-color: var(--bg-primary) !important; }
 .bg-gray-100 { background-color: var(--bg-secondary) !important; }
-.bg-gray-900 { background-color: #0a0d12 !important; }
+.bg-gray-200 { background-color: var(--bg-hover) !important; }
+.bg-gray-800 { background-color: var(--nav-bg) !important; }
+.bg-gray-900 { background-color: var(--footer-bg) !important; }
 
-.text-gray-900 { color: var(--text-primary) !important; }
-.text-gray-700 { color: var(--text-secondary) !important; }
-.text-gray-600 { color: var(--text-secondary) !important; }
-.text-gray-500 { color: var(--text-muted) !important; }
-.text-gray-400 { color: var(--text-muted) !important; }
+/* Text overrides - HIGH CONTRAST */
+.text-white { color: #ffffff !important; }
+.text-gray-900 { color: #f8fafc !important; }
+.text-gray-800 { color: #f1f5f9 !important; }
+.text-gray-700 { color: #e2e8f0 !important; }
+.text-gray-600 { color: #cbd5e1 !important; }
+.text-gray-500 { color: #94a3b8 !important; }
+.text-gray-400 { color: #94a3b8 !important; }
+.text-gray-300 { color: #cbd5e1 !important; }
 
-/* Card styles for dark theme */
+/* Border overrides */
+.border-gray-200 { border-color: var(--border-color) !important; }
+.border-gray-300 { border-color: var(--border-color) !important; }
+.border-gray-600 { border-color: var(--border-color) !important; }
+.border-gray-700 { border-color: var(--border-color) !important; }
+
+/* Card shadows */
 .shadow-lg {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2) !important;
+    box-shadow: 0 10px 15px -3px var(--shadow-color), 0 4px 6px -2px var(--shadow-color) !important;
 }
 
-/* Gradient for Clinic-Buddy */
+.shadow-md {
+    box-shadow: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -1px var(--shadow-color) !important;
+}
+
+/* ==================== NAVIGATION ==================== */
+
+nav {
+    background-color: var(--nav-bg) !important;
+    border-bottom: 1px solid var(--border-color);
+}
+
+nav.bg-white {
+    background-color: var(--nav-bg) !important;
+}
+
+.nav-link {
+    position: relative;
+    color: var(--text-secondary);
+    transition: color 0.3s ease;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+.nav-link:hover {
+    color: var(--accent-primary) !important;
+}
+
+/* ==================== GRADIENT BUTTON ==================== */
+
 .gradient-bg {
-    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #0ea5e9 100%) !important;
+    background: linear-gradient(135deg, var(--gradient-start) 0%, var(--accent-primary) 50%, var(--accent-secondary) 100%) !important;
     transition: all 0.3s ease;
 }
 
@@ -50,13 +120,116 @@ body {
     box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
 }
 
-/* Navigation dark theme */
-nav.bg-white {
-    background-color: var(--bg-secondary) !important;
-    border-bottom: 1px solid var(--border-color);
+/* ==================== CARDS ==================== */
+
+.card-hover {
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-card);
 }
 
-/* Modal animations */
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px var(--shadow-color);
+    border-color: var(--accent-primary);
+}
+
+.stat-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px var(--shadow-color);
+}
+
+.simulation-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.simulation-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px var(--shadow-color);
+    border-color: var(--accent-primary);
+}
+
+.endpoint-card {
+    background-color: var(--bg-card) !important;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.endpoint-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px var(--shadow-color);
+}
+
+/* ==================== FORM INPUTS ==================== */
+
+input, select, textarea {
+    background-color: var(--bg-input) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+    transition: all 0.2s ease;
+}
+
+input::placeholder, textarea::placeholder {
+    color: var(--text-muted) !important;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: var(--accent-primary) !important;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+/* ==================== BUTTONS ==================== */
+
+button, .btn {
+    transition: all 0.2s ease;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+/* ==================== FOOTER ==================== */
+
+footer {
+    background-color: var(--footer-bg) !important;
+    border-top: 1px solid var(--border-color);
+}
+
+/* ==================== CODE BLOCKS ==================== */
+
+pre, code {
+    background-color: var(--code-bg) !important;
+    color: #e2e8f0 !important;
+}
+
+/* ==================== HACKATHON BADGE ==================== */
+
+.hackathon-badge {
+    background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: white;
+}
+
+/* ==================== MODALS ==================== */
+
 #tourModal {
     animation: fadeIn 0.3s ease-out;
 }
@@ -76,7 +249,6 @@ nav.bg-white {
     to { transform: translateY(0); opacity: 1; }
 }
 
-/* Tour step transitions */
 .tour-step {
     animation: fadeInStep 0.4s ease-out;
 }
@@ -86,7 +258,6 @@ nav.bg-white {
     to { opacity: 1; transform: translateX(0); }
 }
 
-/* Progress dot transitions */
 .tour-dot {
     transition: all 0.3s ease;
 }
@@ -95,94 +266,28 @@ nav.bg-white {
     transform: scale(1.2);
 }
 
-/* Card hover effects */
-.card-hover {
-    transition: all 0.3s ease;
-    border: 1px solid var(--border-color);
+/* ==================== SCROLLBAR ==================== */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
 }
 
-.card-hover:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    border-color: var(--accent-primary);
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
 }
 
-/* Nav link hover effects */
-.nav-link {
-    position: relative;
-    transition: color 0.3s ease;
+::-webkit-scrollbar-thumb {
+    background: var(--text-muted);
+    border-radius: 4px;
 }
 
-.nav-link::after {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-    transition: width 0.3s ease;
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
 }
 
-.nav-link:hover::after {
-    width: 100%;
-}
+/* ==================== RESPONSIVE ==================== */
 
-.nav-link:hover {
-    color: var(--accent-primary) !important;
-}
-
-/* Form inputs dark theme */
-input, select, textarea {
-    background-color: var(--bg-secondary) !important;
-    border-color: var(--border-color) !important;
-    color: var(--text-primary) !important;
-}
-
-input:focus, select:focus, textarea:focus {
-    border-color: var(--accent-primary) !important;
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-}
-
-/* Buttons */
-button, .btn {
-    transition: all 0.2s ease;
-}
-
-/* Footer dark */
-footer {
-    background-color: #0a0d12 !important;
-    border-top: 1px solid var(--border-color);
-}
-
-/* Hackathon badge */
-.hackathon-badge {
-    background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
-    padding: 0.5rem 1rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-/* Modal backdrop blur */
-#tourModal {
-    transition: backdrop-filter 0.3s ease;
-}
-
-/* Smooth scroll behavior */
-html {
-    scroll-behavior: smooth;
-}
-
-/* Loading animation for buttons */
-button:active {
-    transform: scale(0.98);
-}
-
-/* Responsive adjustments */
 @media (max-width: 768px) {
     #tourModal > div {
         max-width: 95%;
