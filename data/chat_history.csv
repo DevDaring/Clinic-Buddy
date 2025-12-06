@@ -553,3 +553,60 @@ a584fc06-767a-40d7-9e72-4451041c5517,2,,2025-12-07T00:47:00.093508,neuroregen_ph
 
 আপনি কত পেশেন্ট এনরোল করতে চান (নতুন সংখ্যা)?",bn,chat
 5cdf965f-c90c-4771-901d-0945b0afb6de,2,neuroregen_phase_i_safety_3164,2025-12-07T00:47:14.995083,Confirmed update: patients_enrolled = 100,Updated patients_enrolled from 200 to 100,bn,update_executed
+0060c12a-3093-41be-95c5-94c7e02964df,2,,2025-12-07T02:15:47.597929,আই ওয়ান্ট টু আপডেট ওয়ান অফ মাই সিমুলেশন,"ঠিক আছে! আপনি কোন সিমুলেশনটি আপডেট করতে চান?
+
+আপনার সিমুলেশনগুলো:
+
+1. study_of_immunox_101_7842
+   - এনরোল করা রোগী: 260
+   - সম্পন্ন: 161
+   - সাফল্যের সম্ভাবনা: 74.2%
+
+2. cardioprotect_trial_for_heart_5291
+   - এনরোল করা রোগী: 150
+   - সম্পন্ন: 163
+   - সাফল্যের সম্ভাবনা: 71.7%
+
+3. neuroregen_phase_i_safety_3164
+   - এনরোল করা রোগী: 100
+   - সম্পন্ন: 163
+   - সাফল্যের সম্ভাবনা: 66%
+
+4. 5f653ee8-8b62-4998-824e-39f5b1a33d05
+   - এনরোল করা রোগী: 200
+   - সম্পন্ন: 160
+   - সাফল্যের সম্ভাবনা: 74.5%
+
+কোন সিমুলেশনটি আপডেট করবেন এবং কোন ফিল্ড পরিবর্তন করতে চান? (যেমন: রোগীর সংখ্যা, ড্রাগ ডোজ, ট্রায়ালের সময়কাল ইত্যাদি)",bn,chat
+bd5977fc-2a07-4a13-8aea-2f743d4db718,2,,2025-12-07T02:17:31.536654,I want tu update Van off my simulation.,"Hello! I'd be happy to help you update one of your simulations.
+
+I see you have 4 simulations:
+
+1. study_of_immunox_101_7842
+2. cardioprotect_trial_for_heart_5291
+3. neuroregen_phase_i_safety_3164
+4. 5f653ee8-8b62-4998-824e-39f5b1a33d05
+
+Could you please clarify:
+
+- Which simulation would you like to update? (You can provide the ID or number from the list above)
+- What specific field/parameter do you want to change? (For example: patient count, drug dosage, trial duration, etc.)
+- What is the new value you'd like to set?
+
+This will help me prepare the update request for you.",en,chat
+65262a68-948f-4f5c-a0dc-6383b4f72a99,2,,2025-12-07T02:18:00.668896,আমি একটা সিমুলেশন আপডেট করতে চাই,"নমস্কার! আমি আপনার সিমুলেশন আপডেট করতে সাহায্য করতে পারি।
+
+আপনার কাছে ৪টি সিমুলেশন আছে:
+
+1. study_of_immunox_101_7842
+2. cardioprotect_trial_for_heart_5291
+3. neuroregen_phase_i_safety_3164
+4. 5f653ee8-8b62-4998-824e-39f5b1a33d05
+
+দয়া করে জানান:
+
+- কোন সিমুলেশনটি আপডেট করতে চান? (আপনি ID অথবা উপরের তালিকা থেকে নম্বর দিতে পারেন)
+- কোন নির্দিষ্ট ফিল্ড/প্যারামিটার পরিবর্তন করতে চান? (যেমন: রোগীর সংখ্যা, ড্রাগ ডোজ, ট্রায়ালের সময়কাল ইত্যাদি)
+- নতুন মান কী হবে?
+
+এই তথ্যগুলো পেলে আমি আপনার জন্য আপডেট রিকোয়েস্ট তৈরি করতে পারব।",en,chat
