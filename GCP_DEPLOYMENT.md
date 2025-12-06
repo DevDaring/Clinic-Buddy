@@ -33,8 +33,9 @@ Before deploying, update your `.env` file with production values:
 Local_model=1
 HuggingFace_Model_URL=google/gemma-3-4b-it
 HF_TOKEN=hf_your_token_here
-GEMINI_API_KEY=your_gemini_key
-GOOGLE_API_KEY=your_google_api_key
+AWS_ACCESS_KEY_ID=your_aws_access_key
+AWS_SECRET_ACCESS_KEY=your_aws_secret_key
+AWS_DEFAULT_REGION=us-east-1
 PORT=8000
 ```
 
@@ -114,8 +115,9 @@ cat > .env << 'EOF'
 Local_model=1
 HuggingFace_Model_URL=google/gemma-3-4b-it
 HF_TOKEN=hf_your_token_here
-GEMINI_API_KEY=your_gemini_key
-GOOGLE_API_KEY=your_google_api_key
+AWS_ACCESS_KEY_ID=your_aws_access_key
+AWS_SECRET_ACCESS_KEY=your_aws_secret_key
+AWS_DEFAULT_REGION=us-east-1
 PORT=8000
 EOF
 
@@ -363,7 +365,7 @@ docker restart clinical-trial-poc
 1. **Model Caching**: Models downloaded on first start (~2-3 minutes), then cached
 2. **VRAM Usage**: 24GB L4 supports 7-8GB quantized Gemma + 16GB for inference
 3. **Batch Processing**: Can handle multiple concurrent requests (adjust in FastAPI)
-4. **Fallback Mode**: If Gemini API fails, local model serves requests
+4. **Fallback Mode**: If AWS Bedrock API fails, local model serves requests
 5. **Cost Optimization**: 
    - Use `preemptible-vm` for dev/test: `--preemptible`
    - Stop VM when not in use

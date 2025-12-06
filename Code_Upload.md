@@ -5,8 +5,8 @@ Great — I read your project files (README.md and Agent_Flow.md) and I’ll giv
 # Quick summary (what we’ll do)
 
 1. Prepare local environment and test `python run.py` locally. 
-2. Create a deploy service account with required roles (so Cloud Run can call Speech/TTS/Gemini).
-3. Create *secrets* for Gemini API key (and optionally other keys) in Secret Manager.
+2. Create a deploy service account with required roles (so Cloud Run can call Speech/TTS/AWS Bedrock).
+3. Create *secrets* for AWS credentials (and optionally other keys) in Secret Manager.
 4. Build a container image with Cloud Build (or use `--source` deploy). 
 5. Deploy to Cloud Run with the service account, secrets, and environment variables.
 6. Test the service and view logs.
@@ -37,7 +37,7 @@ source .venv/bin/activate        # Linux/macOS
 # .venv\Scripts\activate         # Windows PowerShell
 
 pip install -r requirements.txt
-# ensure you have env vars in .env (or export GEMINI_API_KEY etc.)
+# ensure you have env vars in .env (or export AWS credentials etc.)
 python run.py
 ```
 
@@ -110,19 +110,21 @@ gcloud projects add-iam-policy-binding $PROJECT \
 
 ---
 
-# 4) Create secrets in Secret Manager (Gemini API key etc.)
+# 4) Create secrets in Secret Manager (AWS credentials etc.)
 
 Store sensitive keys in Secret Manager and map them into Cloud Run on deploy.
 
-Example: create secret for Gemini API key:
+Example: create secrets for AWS Bedrock credentials:
 
-1. On your laptop create a file `secrets/gemini_key.txt` containing your Gemini key (or just have the key value ready).
+1. On your laptop create files `secrets/aws_access_key.txt` and `secrets/aws_secret_key.txt` containing your AWS credentials.
 
-2. Create the secret:
+2. Create the secrets:
 
 ```bash
-gcloud secrets create gemini-api-key --replication-policy="automatic"
-gcloud secrets versions add gemini-api-key --data-file="secrets/gemini_key.txt"
+gcloud secrets create aws-access-key --replication-policy="automatic"
+gcloud secrets versions add aws-access-key --data-file="secrets/aws_access_key.txt"
+gcloud secrets create aws-secret-key --replication-policy="automatic"
+gcloud secrets versions add aws-secret-key --data-file="secrets/aws_secret_key.txt"
 ```
 
 If you need to store other keys (like `GOOGLE_API_KEY`) do the same:
@@ -191,13 +193,13 @@ gcloud run deploy $SERVICE \
   --cpu=2 \
   --timeout=300s \
   --service-account=$SA_EMAIL \
-  --set-secrets="GEMINI_API_KEY=gemini-api-key:latest,GOOGLE_API_KEY=google-api-key:latest" \
-  --set-env-vars="APP_ENV=production,APP_PORT=8000"
+  --set-secrets="AWS_ACCESS_KEY_ID=aws-access-key:latest,AWS_SECRET_ACCESS_KEY=aws-secret-key:latest" \
+  --set-env-vars="APP_ENV=production,APP_PORT=8000,AWS_DEFAULT_REGION=us-east-1"
 ```
 
 Notes:
 
-* `--set-secrets` maps Secret Manager secrets into environment variables inside your container. The format is `ENV_NAME=SECRET_NAME:version`. Your app should read `GEMINI_API_KEY` from env (your README uses this env var). 
+* `--set-secrets` maps Secret Manager secrets into environment variables inside your container. The format is `ENV_NAME=SECRET_NAME:version`. Your app should read `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` from env for AWS Bedrock. 
 * `--service-account` makes the Cloud Run instance run as the SA you created; the Google client libs inside the container will use ADC to access Speech/TTS without needing to ship `speech_key.json`. This avoids a credentials file. (If your code *requires* a file path `GOOGLE_APPLICATION_CREDENTIALS`, you can adapt the code to use ADC or read the secret file from Secret Manager at startup.) 
 
 ---
@@ -244,7 +246,7 @@ gcloud run services logs read $SERVICE --region=$REGION --limit 100
 # 9) Troubleshooting tips (common gotchas)
 
 * If app fails to start: inspect container logs (`gcloud run services logs read ...`) to see missing env var or missing secret. 
-* If Gemini API calls fail: ensure `GEMINI_API_KEY` secret value is correct and that your code reads `GEMINI_API_KEY` env var (README expects that). 
+* If AWS Bedrock API calls fail: ensure `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` secret values are correct and that your AWS region is set properly. 
 * If Speech/TTS calls fail with permission errors: ensure the Cloud Run runtime SA (`ct-run-sa@...`) has `roles/cloudspeech.client` and `roles/texttospeech.admin` (or appropriate roles) and you deployed with `--service-account`.
 * If audio processing expects a filesystem path for `speech_key.json`, either adjust the code to use ADC or use the secret-write-at-startup workaround described above. 
 
@@ -261,9 +263,9 @@ If you want to CI/CD on git push to `main`, set up a Cloud Build trigger that us
 1. `gcloud auth login && gcloud config set project silicon-guru-472717-q9`
 2. `gcloud services enable run.googleapis.com cloudbuild.googleapis.com secretmanager.googleapis.com speech.googleapis.com texttospeech.googleapis.com`
 3. Create runtime SA and grant roles (see commands above).
-4. Put GEMINI API key into Secret Manager.
+4. Put AWS credentials into Secret Manager.
 5. `gcloud builds submit --tag gcr.io/silicon-guru-472717-q9/clinical-trial-app:latest`
-6. `gcloud run deploy clinical-trial-app --image gcr.io/silicon-guru-472717-q9/clinical-trial-app:latest --region=us-central1 --service-account=ct-run-sa@silicon-guru-472717-q9.iam.gserviceaccount.com --set-secrets="GEMINI_API_KEY=gemini-api-key:latest,GOOGLE_API_KEY=google-api-key:latest" --allow-unauthenticated --memory=2Gi --cpu=2`
+6. `gcloud run deploy clinical-trial-app --image gcr.io/silicon-guru-472717-q9/clinical-trial-app:latest --region=us-central1 --service-account=ct-run-sa@silicon-guru-472717-q9.iam.gserviceaccount.com --set-secrets="AWS_ACCESS_KEY_ID=aws-access-key:latest,AWS_SECRET_ACCESS_KEY=aws-secret-key:latest" --allow-unauthenticated --memory=2Gi --cpu=2`
 7. `gcloud run services describe clinical-trial-app --region=us-central1 --format="value(status.url)"` then open URL.
 
 ---
@@ -271,7 +273,7 @@ If you want to CI/CD on git push to `main`, set up a Cloud Build trigger that us
 # References from your repo
 
 * README (deployment notes, env var names, endpoints, docker/cloudbuild info). 
-* Agent_Flow (agent routing and ADK vs fallback — useful to confirm GEMINI usage on Cloud Run). 
+* Agent_Flow (agent routing and Bedrock vs fallback — useful to confirm Claude Sonnet 4.5 usage on Cloud Run). 
 
 ---
 

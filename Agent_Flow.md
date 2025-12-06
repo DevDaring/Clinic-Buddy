@@ -3,7 +3,7 @@
 ## Overview
 
 This document describes the **dual-framework agentic system** with intelligent routing between:
-1. **Primary**: Google ADK agents (Gemini 2.0 Flash) 
+1. **Primary**: AWS Bedrock agents (Claude Sonnet 4.5) 
 2. **Fallback**: Rule-based agents (always available)
 
 The system automatically routes requests and provides seamless failover for maximum reliability.
@@ -36,11 +36,11 @@ The system automatically routes requests and provides seamless failover for maxi
      │                       │
      ▼                       ▼
 ┌─────────────┐      ┌──────────────┐
-│ Google ADK  │      │  Fallback    │
+│ AWS Bedrock │      │  Fallback    │
 │ agents.py   │      │ fallback_    │
 │             │      │ agents.py    │
-│ Gemini 2.0  │      │ Rule-Based   │
-│ Flash       │      │ Always Works │
+│ Claude      │      │ Rule-Based   │
+│ Sonnet 4.5  │      │ Always Works │
 └──────┬──────┘      └──────┬───────┘
        │                    │
        └──────────┬─────────┘
@@ -153,8 +153,8 @@ Each agent follows this flow:
          │           │
          ▼           ▼
    ┌──────────┐  ┌──────────────┐
-   │ ADK Mode │  │ Fallback     │
-   │(Gemini)  │  │ Mode (Local) │
+   │ Bedrock  │  │ Fallback     │
+   │(Claude)  │  │ Mode (Local) │
    └────┬─────┘  └──────┬───────┘
         │               │
         └───────┬───────┘
@@ -193,9 +193,9 @@ User Query: "What factors lead to trial success?"
 │ 2. Build prompt with context:           │
 │    - Query + Historical context         │
 │                                         │
-│ 3. Call Gemini 2.0 API:                │
-│    genai.GenerativeModel().              │
-│    generate_content(prompt)              │
+│ 3. Call Claude Sonnet 4.5 API:         │
+│    bedrock_client.generate()            │
+│    .invoke(prompt)                       │
 │                                         │
 │ 4. Format response                      │
 └────────────┬─────────────────────────────┘
@@ -243,7 +243,7 @@ User Input: Trial Design (Phase II, 200 patients, 18-month duration)
 │    - Historical comparables              │
 │    - ML predictions                      │
 │                                          │
-│ 3. Send to Gemini 2.0:                   │
+│ 3. Send to Claude Sonnet 4.5:           │
 │    "Analyze this trial design and        │
 │     predict success probability..."      │
 │                                          │
@@ -265,10 +265,10 @@ User Input: Trial Design (Phase II, 200 patients, 18-month duration)
 └────────────────────────────────┘
 ```
 
-**Fallback (No ADK):**
+**Fallback (No Bedrock):**
 ```
 ML-Based Prediction:
-  1. Load local Gemma/Gemini model
+  1. Load local fallback model
   2. Extract trial parameters
   3. Run prediction pipeline
   4. Calculate confidence score
@@ -358,7 +358,7 @@ User Request: Generate trial report
 │    - Recommendations                 │
 │    - Benchmarking data               │
 │                                      │
-│ 3. Generate report via Gemini:       │
+│ 3. Generate report via Claude:       │
 │    - Executive summary               │
 │    - Key findings                    │
 │    - Risk assessment                 │
@@ -426,7 +426,7 @@ Template-Based Report:
 │  - Calls external services      │
 │    • Database queries           │
 │    • ML model inference         │
-│    • Gemini API calls           │
+│    • Claude Sonnet 4.5 API      │
 └──────────┬──────────────────────┘
            │
            ▼
@@ -443,21 +443,21 @@ Template-Based Report:
 
 ## Execution Modes
 
-### Mode 1: Google ADK (Preferred)
+### Mode 1: AWS Bedrock (Preferred)
 
 ```
-Condition: GOOGLE_API_KEY is set in .env
+Condition: AWS credentials are set in .env
 
 Flow:
   1. Parse request with system instructions
   2. Prepare context from local data
-  3. Send to Google Gemini 2.0 API
+  3. Send to AWS Bedrock Claude Sonnet 4.5
   4. Stream/wait for response
   5. Parse and format response
   6. Return structured AgentResponse
 
 Advantages:
-  ✓ Latest Gemini model (2.0-flash)
+  ✓ Latest Claude model (Sonnet 4.5)
   ✓ Intelligent reasoning
   ✓ Context-aware responses
   ✓ No local GPU needed
@@ -528,27 +528,30 @@ Advantages:
 ### Required Environment Variables:
 
 ```env
-# For ADK Mode
-GOOGLE_API_KEY=your-api-key
+# For AWS Bedrock Mode
+AWS_ACCESS_KEY_ID=your-access-key
+AWS_SECRET_ACCESS_KEY=your-secret-key
+AWS_DEFAULT_REGION=us-east-1
 
 # For Model Configuration
 Local_model=1  # 1=local, 0=API
 HuggingFace_Model_URL=google/gemma-3-4b-it
 HF_TOKEN=hf_xxxxx
 
-# For Gemini API Fallback
-Gemini_API_key_1=AIzaSy...
+# AWS Bedrock Model
+AWS_SONNET_45=us.anthropic.claude-sonnet-4-5-20250929-v1:0
 ```
 
 ### Configuration in code:
 
 ```python
 # config.py
-GOOGLE_API_KEY: Optional[str] = None
+AWS_ACCESS_KEY_ID: Optional[str] = None
+AWS_SECRET_ACCESS_KEY: Optional[str] = None
+AWS_DEFAULT_REGION: Optional[str] = "us-east-1"
 LOCAL_MODEL: Optional[int] = None
 HUGGINGFACE_MODEL_URL: Optional[str] = None
 HF_TOKEN: Optional[str] = None
-GEMINI_API_KEY: Optional[str] = None
 ```
 
 ---
@@ -612,16 +615,16 @@ response = AgentFactory.process_request(request)
 
 ## Performance Characteristics
 
-### ADK Mode (Gemini API):
+### AWS Bedrock Mode (Claude Sonnet 4.5):
 
 | Metric | Value |
 |--------|-------|
 | First Request Latency | 500ms - 2s |
 | Subsequent Requests | 300ms - 1.5s |
-| API Rate Limit | 60 req/min (free tier) |
-| Max Context Length | 1M tokens |
+| API Rate Limit | Based on AWS tier |
+| Max Context Length | 200K tokens |
 | Accuracy | 90%+ for structured tasks |
-| Cost | ~$0.10 per 1M input tokens |
+| Cost | ~$0.003 per 1K input tokens |
 
 ### Fallback Mode (Local):
 
@@ -641,7 +644,7 @@ response = AgentFactory.process_request(request)
 ### File Structure
 ```
 app/
-├── agents.py              # Google ADK agents (Gemini 2.0 Flash)
+├── agents.py              # AWS Bedrock agents (Claude Sonnet 4.5)
 ├── fallback_agents.py     # Rule-based agents (no API required)
 ├── agent_router.py        # Intelligent routing layer ⭐ NEW
 ├── routes.py              # Updated to use AgentRouter
@@ -650,18 +653,16 @@ app/
 
 ### Key Components
 
-#### 1. agents.py (Google ADK - Primary)
+#### 1. agents.py (AWS Bedrock - Primary)
 ```python
-class GoogleADKAgent:
+class AWSBedrockAgent:
     def __init__(self, agent_type, instruction):
-        genai.configure(api_key=settings.GOOGLE_API_KEY)
-        self.model = genai.GenerativeModel(
-            "gemini-2.0-flash-exp",
-            system_instruction=instruction
-        )
+        self.bedrock_client = BedrockClient()
+        self.model_id = "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
+        self.system_instruction = instruction
     
     def process(self, request):
-        response = self.model.generate_content(prompt)
+        response = self.bedrock_client.generate(prompt)
         return AgentResponse(...)
 
 # 4 agents: Research, Prediction, Optimization, Report
@@ -712,19 +713,22 @@ async def get_agent_status():
 
 **.env Configuration:**
 ```bash
-# For Google ADK mode (Primary)
-GOOGLE_API_KEY=your_gemini_api_key_here
+# For AWS Bedrock mode (Primary)
+AWS_ACCESS_KEY_ID=your_aws_access_key
+AWS_SECRET_ACCESS_KEY=your_aws_secret_key
+AWS_DEFAULT_REGION=us-east-1
 
 # For fallback mode
-# Just comment out GOOGLE_API_KEY
+# Just comment out AWS credentials
 ```
 
 ### Testing Modes
 
-**1. Test Google ADK Mode:**
+**1. Test AWS Bedrock Mode:**
 ```bash
-# Set API key in .env
-GOOGLE_API_KEY=AIza...
+# Set AWS credentials in .env
+AWS_ACCESS_KEY_ID=AKIA...
+AWS_SECRET_ACCESS_KEY=...
 
 # Test
 curl -X POST "http://localhost:8000/api/agents/research" \
@@ -733,13 +737,14 @@ curl -X POST "http://localhost:8000/api/agents/research" \
 
 # Check status
 curl http://localhost:8000/api/agents/status
-# Should show: "active_system": "Google ADK"
+# Should show: "active_system": "AWS Bedrock"
 ```
 
 **2. Test Fallback Mode:**
 ```bash
-# Remove API key from .env
-# GOOGLE_API_KEY=
+# Remove AWS credentials from .env
+# AWS_ACCESS_KEY_ID=
+# AWS_SECRET_ACCESS_KEY=
 
 # Restart app
 python run.py
@@ -757,15 +762,15 @@ curl http://localhost:8000/api/agents/status
 {
   "router_version": "1.0.0",
   "routing": {
-    "active_system": "Google ADK",
+    "active_system": "AWS Bedrock",
     "primary_available": true,
     "fallback_available": true
   },
-  "google_adk": {
+  "aws_bedrock": {
     "module_loaded": true,
-    "adk_available": true,
-    "api_key_configured": true,
-    "model": "gemini-2.0-flash-exp"
+    "bedrock_available": true,
+    "credentials_configured": true,
+    "model": "claude-sonnet-4-5"
   },
   "fallback": {
     "module_loaded": true,
@@ -774,8 +779,8 @@ curl http://localhost:8000/api/agents/status
   "agents": {
     "research": {
       "available": true,
-      "using_adk": true,
-      "source": "Google ADK"
+      "using_bedrock": true,
+      "source": "AWS Bedrock"
     },
     ...
   }
@@ -785,12 +790,12 @@ curl http://localhost:8000/api/agents/status
 ### Advantages of Dual-Framework Design
 
 ✅ **Reliability**: Never fails - always has fallback
-✅ **Flexibility**: Switch between ADK/Fallback dynamically
+✅ **Flexibility**: Switch between Bedrock/Fallback dynamically
 ✅ **Testing**: Test both modes independently
 ✅ **Development**: Work offline with fallback mode
-✅ **Cost**: Use fallback for dev, ADK for production
+✅ **Cost**: Use fallback for dev, Bedrock for production
 ✅ **Hackathon**: Shows both rule-based AND AI capabilities
-✅ **Mandatory ADK**: Google ADK is primary mode (hackathon requirement)
+✅ **AWS Bedrock**: Claude Sonnet 4.5 as primary mode
 ✅ **Production Ready**: Handles API failures gracefully
 
 ---
@@ -801,7 +806,7 @@ curl http://localhost:8000/api/agents/status
 ```
 Client → FastAPI → Agent → Database
                 ↓
-            Gemini API (async)
+            AWS Bedrock Claude (async)
 ```
 
 ### Cloud Run (Recommended):
@@ -810,12 +815,12 @@ Cloud Load Balancer
         ↓
     Cloud Run (Serverless)
     - No GPU needed
-    - Uses ADK mode
+    - Uses Bedrock mode
     - Auto-scaling
         ↓
-    Firestore/Database
+    CSV Database
         ↓
-    Gemini API
+    AWS Bedrock Claude Sonnet 4.5
 ```
 
 ### Batch Processing:
@@ -880,4 +885,4 @@ The agentic framework provides:
 ✅ **Intelligent Analysis**: AI-powered insights  
 ✅ **Fast Responses**: Optimized for clinical use
 
-The system intelligently routes requests to appropriate agents, which leverage Google's latest AI models while maintaining fallback capabilities for offline operation.
+The system intelligently routes requests to appropriate agents, which leverage AWS Bedrock Claude Sonnet 4.5 while maintaining fallback capabilities for offline operation.
