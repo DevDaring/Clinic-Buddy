@@ -510,3 +510,46 @@ Currently, this simulation has 300 patients enrolled.
 
 How many patients would you like to change it to?",en,chat
 c044dcdb-7c70-423a-81fd-58c9405ef269,2,study_of_immunox_101_7842,2025-12-06T22:44:40.676129,Confirmed update: patients_enrolled = 260,Updated patients_enrolled from 300 to 260,en,update_executed
+91969fab-70de-4cb8-8dba-64548ecef2ea,2,,2025-12-06T23:53:00.964868,Update number off patients.,"Hello! I can help you update the number of patients for one of your simulations.
+
+You have 4 simulations. Which one would you like to update?
+
+1. study_of_immunox_101_7842 (Currently: 260 patients enrolled)
+2. cardioprotect_trial_for_heart_5291 (Currently: 200 patients enrolled)
+3. neuroregen_phase_i_safety_3164 (Currently: 200 patients enrolled)
+4. 5f653ee8-8b62-4998-824e-39f5b1a33d05 (Currently: 200 patients enrolled)
+
+Please tell me:
+- Which simulation? (you can use the ID or the number)
+- What should the new patient count be?",en,chat
+4edba328-3cb2-4f65-af49-7e057f8d6981,2,,2025-12-06T23:53:17.748080,cardioprotect_trial_for_heart_5291,"Got it! You want to update the patient count for cardioprotect_trial_for_heart_5291.
+
+Current patient count: 200 enrolled
+
+What should the new patient count be?",en,chat
+18a6da7f-6a22-4dfd-b1ad-52535abe4829,2,cardioprotect_trial_for_heart_5291,2025-12-06T23:53:47.091825,Confirmed update: patients_enrolled = 150,Updated patients_enrolled from 200 to 150,en,update_executed
+38453f09-93bc-4e00-af43-652fe61eddc4,2,,2025-12-07T00:46:43.023366,আমি পেশেন্টের সংখ্যা বদলাতে চাই,"আচ্ছা, আপনি কোন সিমুলেশনের পেশেন্ট সংখ্যা বদলাতে চান?
+
+আপনার বর্তমান সিমুলেশনগুলো:
+
+1. study_of_immunox_101_7842
+   - এনরোল করা পেশেন্ট: 260
+
+2. cardioprotect_trial_for_heart_5291
+   - এনরোল করা পেশেন্ট: 150
+
+3. neuroregen_phase_i_safety_3164
+   - এনরোল করা পেশেন্ট: 200
+
+4. 5f653ee8-8b62-4998-824e-39f5b1a33d05
+   - এনরোল করা পেশেন্ট: 200
+
+দয়া করে জানান:
+- কোন সিমুলেশনের ID?
+- নতুন পেশেন্ট সংখ্যা কত হবে?",bn,chat
+a584fc06-767a-40d7-9e72-4451041c5517,2,,2025-12-07T00:47:00.093508,neuroregen_phase_i_safety_3164,"ঠিক আছে, neuroregen_phase_i_safety_3164 সিমুলেশনের জন্য।
+
+বর্তমান পেশেন্ট সংখ্যা: 200
+
+আপনি কত পেশেন্ট এনরোল করতে চান (নতুন সংখ্যা)?",bn,chat
+5cdf965f-c90c-4771-901d-0945b0afb6de,2,neuroregen_phase_i_safety_3164,2025-12-07T00:47:14.995083,Confirmed update: patients_enrolled = 100,Updated patients_enrolled from 200 to 100,bn,update_executed

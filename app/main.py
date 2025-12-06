@@ -495,6 +495,24 @@ async def results_page_with_id(request: Request, simulation_id: str):
         return HTMLResponse(content=f"<h1>Error loading results for {simulation_id}</h1>")
 
 
+@app.get("/analyze-setup/{simulation_id}", response_class=HTMLResponse)
+async def analyze_setup_page(request: Request, simulation_id: str):
+    """Analyze clinical trial setup image page."""
+    try:
+        logger.info(f"🔬 Loading analyze setup page for simulation: {simulation_id}")
+        return templates.TemplateResponse(
+            "analyze_setup.html",
+            {
+                "request": request,
+                "simulation_id": simulation_id,
+                "app_name": settings.APP_NAME
+            }
+        )
+    except Exception as e:
+        logger.error(f"Error rendering analyze setup page for {simulation_id}: {e}")
+        return HTMLResponse(content=f"<h1>Error loading analyze setup for {simulation_id}</h1>")
+
+
 @app.get("/coming-soon", response_class=HTMLResponse)
 async def coming_soon_page(request: Request):
     """Coming soon page for features under development."""

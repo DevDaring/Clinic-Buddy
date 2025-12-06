@@ -1077,6 +1077,227 @@ async def text_to_speech(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# ==================== IMAGE ANALYSIS ENDPOINTS ====================
+
+@api_router.post("/simulation/{simulation_id}/analyze-setup")
+async def analyze_trial_setup_image(
+    simulation_id: str,
+    image: UploadFile = File(...),
+    custom_question: Optional[str] = Form(None)
+):
+    """
+    Analyze clinical trial setup image using Claude Sonnet 4.5 Vision.
+    
+    Sends the image along with simulation context to get AI analysis on:
+    - Setup quality and correctness
+    - Ethical considerations
+    - Potential risks or issues
+    - Recommendations for improvement
+    
+    Args:
+        simulation_id: ID of the simulation to analyze
+        image: Uploaded image file (PNG, JPEG, GIF, WEBP)
+        custom_question: Optional additional question to ask about the setup
+        
+    Returns:
+        AI analysis of the clinical trial setup
+    """
+    import base64
+    from .aws_bedrock_client import get_bedrock_client
+    
+    try:
+        logger.info(f"Analyzing setup image for simulation: {simulation_id}")
+        
+        # Get simulation data
+        db = get_db()
+        simulation = db.get_simulation_by_id(simulation_id)
+        
+        if not simulation:
+            raise HTTPException(status_code=404, detail=f"Simulation {simulation_id} not found")
+        
+        # Validate image type
+        allowed_types = ["image/png", "image/jpeg", "image/jpg", "image/gif", "image/webp"]
+        if image.content_type not in allowed_types:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Invalid image type. Allowed: PNG, JPEG, GIF, WEBP. Got: {image.content_type}"
+            )
+        
+        # Read and encode image
+        image_bytes = await image.read()
+        image_base64 = base64.b64encode(image_bytes).decode("utf-8")
+        
+        # Determine media type
+        media_type = image.content_type
+        if media_type == "image/jpg":
+            media_type = "image/jpeg"
+        
+        # Build simulation context
+        sim_context = f"""
+CLINICAL TRIAL SIMULATION CONTEXT:
+- Simulation ID: {simulation_id}
+- Trial Name: {simulation.get('trial_name', 'N/A')}
+- Phase: {simulation.get('phase', 'N/A')}
+- Therapeutic Area: {simulation.get('therapeutic_area', 'N/A')}
+- Drug Name: {simulation.get('drug_name', 'N/A')}
+- Drug Type: {simulation.get('drug_type', 'N/A')}
+- Target Enrollment: {simulation.get('patients_enrolled', 'N/A')} patients
+- Patients Completed: {simulation.get('patients_completed', 'N/A')}
+- Duration: {simulation.get('duration_months', 'N/A')} months
+- Success Probability: {simulation.get('success_probability', 'N/A')}
+- Efficacy Score: {simulation.get('efficacy_score', 'N/A')}
+- Safety Score: {simulation.get('safety_score', 'N/A')}
+- Estimated Cost: ${simulation.get('estimated_cost', 'N/A')}
+"""
+        
+        # Build the analysis prompt
+        base_prompt = f"""You are an expert clinical trial consultant and medical ethics advisor. 
+Analyze the uploaded image showing a clinical trial setup/environment.
+
+{sim_context}
+
+Please provide a comprehensive analysis covering:
+
+## 1. Setup Assessment
+- Is the setup appropriate for this type of clinical trial?
+- Are the facilities/equipment visible suitable for the trial phase and therapeutic area?
+- Any visible compliance with Good Clinical Practice (GCP) guidelines?
+
+## 2. Ethical Considerations
+- Are there any ethical concerns visible in the setup?
+- Patient safety and privacy considerations
+- Informed consent process indicators (if visible)
+
+## 3. Risk Analysis
+- Identify any potential risks or issues visible in the image
+- Equipment or environment concerns
+- Protocol adherence indicators
+
+## 4. Recommendations
+- Specific improvements for the setup
+- Best practices that should be implemented
+- Priority actions to address any concerns
+
+## 5. Overall Assessment
+- Rate the setup (Excellent/Good/Needs Improvement/Concerning)
+- Summary of key findings
+- Confidence level in the assessment
+"""
+        
+        # Add custom question if provided
+        if custom_question:
+            base_prompt += f"""
+
+## 6. Additional Analysis
+User's specific question: {custom_question}
+Please address this question in detail.
+"""
+        
+        # Get AWS Bedrock client
+        bedrock_client = get_bedrock_client()
+        
+        if not bedrock_client.is_available:
+            raise HTTPException(
+                status_code=503, 
+                detail="AI service not available. Please check AWS Bedrock configuration."
+            )
+        
+        logger.info(f"✅ AWS Bedrock client available, preparing to analyze image...")
+        logger.info(f"   Image size: {len(image_base64)} chars (base64)")
+        
+        # System instruction for the analysis
+        system_instruction = """You are an expert clinical trial consultant with extensive experience in:
+- Clinical trial design and execution
+- Good Clinical Practice (GCP) compliance
+- Medical ethics and patient safety
+- Regulatory requirements (FDA, EMA, etc.)
+- Laboratory and clinical facility standards
+
+Provide detailed, professional analysis. Be specific about what you observe in the image.
+If you cannot clearly see certain aspects, acknowledge this limitation.
+Always prioritize patient safety and ethical considerations in your assessment."""
+        
+        logger.info(f"🔄 Calling AWS Bedrock API for image analysis...")
+        
+        # Call AWS Bedrock with image
+        analysis = bedrock_client.generate_with_image(
+            prompt=base_prompt,
+            image_base64=image_base64,
+            image_media_type=media_type,
+            max_tokens=4096,
+            temperature=0.3,  # Lower temperature for more focused analysis
+            system_instruction=system_instruction
+        )
+        
+        logger.info(f"✅ Setup analysis complete for simulation {simulation_id}")
+        
+        # Save analysis to database
+        db.save_setup_analysis(
+            simulation_id=simulation_id,
+            analysis=analysis,
+            image_filename=image.filename or "uploaded_image",
+            image_base64=image_base64,
+            image_media_type=media_type,
+            custom_question=custom_question,
+            model="Claude Sonnet 4.5 (AWS Bedrock)"
+        )
+        
+        return {
+            "success": True,
+            "simulation_id": simulation_id,
+            "analysis": analysis,
+            "image_type": media_type,
+            "image_filename": image.filename,
+            "image_base64": image_base64,
+            "custom_question": custom_question,
+            "timestamp": datetime.now().isoformat(),
+            "model": "Claude Sonnet 4.5 (AWS Bedrock)"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Setup analysis error: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+
+
+@api_router.get("/simulation/{simulation_id}/setup-analysis")
+async def get_saved_setup_analysis(simulation_id: str):
+    """
+    Get previously saved setup analysis for a simulation.
+    
+    Args:
+        simulation_id: ID of the simulation
+        
+    Returns:
+        Saved analysis data or 404 if not found
+    """
+    try:
+        db = get_db()
+        analysis = db.get_setup_analysis(simulation_id)
+        
+        if not analysis:
+            raise HTTPException(status_code=404, detail="No saved analysis found for this simulation")
+        
+        return {
+            "success": True,
+            "simulation_id": simulation_id,
+            "analysis": analysis.get('analysis'),
+            "image_filename": analysis.get('image_filename'),
+            "image_base64": analysis.get('image_base64'),
+            "image_media_type": analysis.get('image_media_type', 'image/png'),
+            "custom_question": analysis.get('custom_question'),
+            "timestamp": analysis.get('timestamp'),
+            "model": analysis.get('model')
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error retrieving setup analysis: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # Include routers
 def get_routers():
     """Get all routers for inclusion in main app."""

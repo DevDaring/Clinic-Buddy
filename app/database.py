@@ -613,6 +613,95 @@ class CSVDatabase:
             logger.error(f"Error getting AI analysis: {str(e)}")
             return None
 
+    def save_setup_analysis(
+        self,
+        simulation_id: str,
+        analysis: str,
+        image_filename: str,
+        image_base64: str,
+        image_media_type: str,
+        custom_question: Optional[str],
+        model: str
+    ) -> bool:
+        """
+        Save setup image analysis to CSV file.
+        
+        Args:
+            simulation_id: Simulation ID
+            analysis: AI analysis text
+            image_filename: Original filename of uploaded image
+            image_base64: Base64 encoded image data
+            image_media_type: MIME type of the image (e.g., image/png)
+            custom_question: Optional custom question asked
+            model: Model used for analysis
+            
+        Returns:
+            True if saved successfully
+        """
+        try:
+            setup_analysis_path = self.data_dir / "setup_analysis.csv"
+            
+            record = {
+                'simulation_id': simulation_id,
+                'analysis': analysis,
+                'image_filename': image_filename,
+                'image_base64': image_base64,
+                'image_media_type': image_media_type,
+                'custom_question': custom_question or '',
+                'model': model,
+                'timestamp': datetime.now().isoformat()
+            }
+            
+            if setup_analysis_path.exists():
+                df = pd.read_csv(setup_analysis_path)
+                # Remove old analysis for this simulation (keep only latest)
+                df = df[df['simulation_id'] != simulation_id]
+                df = pd.concat([df, pd.DataFrame([record])], ignore_index=True)
+            else:
+                df = pd.DataFrame([record])
+            
+            df.to_csv(setup_analysis_path, index=False)
+            logger.info(f"✓ Saved setup analysis for simulation {simulation_id}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error saving setup analysis: {str(e)}")
+            return False
+
+    def get_setup_analysis(self, simulation_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get saved setup analysis for a simulation.
+        
+        Args:
+            simulation_id: Simulation ID
+            
+        Returns:
+            Dictionary with analysis data or None if not found
+        """
+        try:
+            setup_analysis_path = self.data_dir / "setup_analysis.csv"
+            
+            if not setup_analysis_path.exists():
+                return None
+            
+            df = pd.read_csv(setup_analysis_path)
+            
+            # Find analysis for this simulation
+            analysis = df[df['simulation_id'] == simulation_id]
+            
+            if analysis.empty:
+                return None
+            
+            # Get the most recent
+            record = analysis.iloc[-1].to_dict()
+            
+            logger.info(f"✓ Found saved setup analysis for simulation {simulation_id}")
+            return record
+            
+        except Exception as e:
+            logger.error(f"Error getting setup analysis: {str(e)}")
+            return None
+
 
 # Singleton instance
 db = CSVDatabase()

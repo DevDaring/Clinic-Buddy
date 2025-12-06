@@ -123,6 +123,7 @@ class ChatService:
         # Language name mapping for forced language responses
         language_names = {
             'en': 'English',
+            'ms': 'Bahasa Melayu (Malay)',
             'hi': 'हिंदी (Hindi)',
             'bn': 'বাংলা (Bengali)',
             'es': 'Español (Spanish)',
@@ -323,6 +324,10 @@ Remember: Be conversational, helpful, and use clean formatting!"""
             return 'hi'  # Hindi (Devanagari script)
         elif any('\u0980' <= char <= '\u09FF' for char in message):
             return 'bn'  # Bengali
+        # Malay uses Latin script, detect by common Malay words
+        malay_keywords = ['saya', 'anda', 'tidak', 'ya', 'boleh', 'terima kasih', 'tolong', 'bagaimana', 'apa', 'mengapa', 'bila', 'mana', 'siapa']
+        if any(word in message.lower() for word in malay_keywords):
+            return 'ms'  # Malay
         else:
             return 'en'  # Default to English
     
@@ -352,11 +357,15 @@ Remember: Be conversational, helpful, and use clean formatting!"""
         yes_keywords_bengali = ['হ্যাঁ', 'ঠিক আছে', 'করুন', 'হ্যাঁ করুন', 'সঠিক']
         no_keywords_bengali = ['না', 'বাতিল', 'নাহ', 'করবেন না', 'না করুন']
         
+        # Malay confirmations
+        yes_keywords_malay = ['ya', 'betul', 'setuju', 'ok', 'baik', 'boleh', 'teruskan']
+        no_keywords_malay = ['tidak', 'tak', 'jangan', 'batal', 'tolak', 'salah']
+        
         # Check all keywords
-        if msg_lower in yes_keywords + yes_keywords_hindi + yes_keywords_bengali:
+        if msg_lower in yes_keywords + yes_keywords_hindi + yes_keywords_bengali + yes_keywords_malay:
             logger.debug(f"Confirmation detected: '{message}' → YES")
             return True
-        if msg_lower in no_keywords + no_keywords_hindi + no_keywords_bengali:
+        if msg_lower in no_keywords + no_keywords_hindi + no_keywords_bengali + no_keywords_malay:
             logger.debug(f"Confirmation detected: '{message}' → NO")
             return True
         
@@ -568,8 +577,9 @@ Remember: Be conversational, helpful, and use clean formatting!"""
         # Extract target language
         language_map = {
             'hindi': 'hi', 'हिंदी': 'hi', 'हिन्दी': 'hi',
+            'malay': 'ms', 'melayu': 'ms', 'bahasa melayu': 'ms', 'bahasa': 'ms',
             'bengali': 'bn', 'bangla': 'bn', 'বাংলা': 'bn',
-            'english': 'en', 'अंग्रेजी': 'en', 'ইংরেজি': 'en'
+            'english': 'en', 'अंग्रेजी': 'en', 'ইংরেজি': 'en', 'inggeris': 'ms'
         }
         
         target_language = None
@@ -847,6 +857,15 @@ Remember: Be conversational, helpful, and use clean formatting!"""
 
 এগিয়ে যেতে 'হ্যাঁ' বা 'YES' উত্তর দিন, অথবা বাতিল করতে 'না' বা 'NO' উত্তর দিন।"""
         
+        elif self.language == 'ms':
+            return f"""📝 Permintaan Kemaskini:
+- ID Simulasi: {sim_id}
+- Medan: {field}
+- Nilai Semasa: {old_val}
+- Nilai Baharu: {new_val}
+
+Balas dengan 'YA' atau 'YES' untuk teruskan, atau 'TIDAK' atau 'NO' untuk batal."""
+        
         else:  # English
             return f"""📝 Update Request Detected:
 - Simulation ID: {sim_id}
@@ -987,6 +1006,17 @@ Reply with 'YES' or 'CONFIRM' to proceed, or 'NO' or 'CANCEL' to abort."""
 🔄 সিমুলেশন পুনরায় প্রক্রিয়া করা হচ্ছে...
 ফলাফল কয়েক মিনিটের মধ্যে প্রস্তুত হবে।"""
         
+        elif self.language == 'ms':
+            return f"""✅ Berjaya Dikemaskini!
+
+- ID Simulasi: {sim_id}
+- Medan: {field}
+- Nilai Sebelumnya: {old_val}
+- Nilai Baharu: {new_val}
+
+🔄 Memproses semula simulasi...
+Keputusan akan sedia dalam beberapa minit."""
+        
         else:  # English
             return f"""✅ Successfully Updated!
 
@@ -1005,7 +1035,7 @@ Results will be ready in a few minutes."""
         
         if not target_language:
             return {
-                'response': "Please specify target language (English, Hindi, or Bengali).",
+                'response': "Please specify target language (English, Malay, Hindi, or Bengali).",
                 'language': self.language,
                 'action_type': 'clarification',
                 'action_data': None

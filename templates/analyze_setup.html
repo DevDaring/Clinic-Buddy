@@ -1,0 +1,472 @@
+{% extends "base.html" %}
+
+{% block title %}Analyze Trial Setup - Clinic-Buddy{% endblock %}
+
+{% block content %}
+<div class="min-h-screen py-12 bg-gray-900">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8" x-data="setupAnalyzer()">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h1 class="text-4xl font-bold text-gray-100 mb-2">
+                        <i class="fas fa-microscope mr-3 text-blue-400"></i>
+                        Analyze Trial Setup
+                    </h1>
+                    <p class="text-gray-400">Upload an image of your clinical trial setup for AI-powered analysis</p>
+                </div>
+                <a href="/results/{{ simulation_id }}" class="text-blue-400 hover:text-blue-300 font-semibold transition">
+                    <i class="fas fa-arrow-left mr-1"></i> Back to Results
+                </a>
+            </div>
+        </div>
+
+        <!-- Simulation Context Card -->
+        <div class="bg-gradient-to-r from-blue-900/50 to-indigo-900/50 border border-blue-500/50 rounded-xl p-6 mb-8">
+            <h3 class="text-xl font-bold text-blue-400 mb-4 flex items-center">
+                <i class="fas fa-flask mr-2"></i>
+                Simulation Context
+            </h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div>
+                    <p class="text-gray-500">Simulation ID</p>
+                    <p class="font-bold text-gray-200">{{ simulation_id }}</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Trial Name</p>
+                    <p class="font-bold text-gray-200" x-text="simulationData?.trial_name || 'Loading...'"></p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Phase</p>
+                    <p class="font-bold text-gray-200" x-text="simulationData?.phase || '-'"></p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Therapeutic Area</p>
+                    <p class="font-bold text-gray-200" x-text="simulationData?.therapeutic_area || '-'"></p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Drug Name</p>
+                    <p class="font-bold text-gray-200" x-text="simulationData?.drug_name || '-'"></p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Target Enrollment</p>
+                    <p class="font-bold text-gray-200" x-text="simulationData?.patients_enrolled ? simulationData.patients_enrolled + ' patients' : '-'"></p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Success Probability</p>
+                    <p class="font-bold text-green-400" x-text="simulationData?.success_probability ? (simulationData.success_probability * 100).toFixed(1) + '%' : '-'"></p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Duration</p>
+                    <p class="font-bold text-gray-200" x-text="simulationData?.duration_months ? simulationData.duration_months + ' months' : '-'"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Left Column: Upload Section -->
+            <div class="space-y-6">
+                <!-- Image Upload Card -->
+                <div class="bg-gray-800 rounded-xl border border-gray-700 p-6">
+                    <h3 class="text-xl font-bold text-gray-100 mb-4 flex items-center">
+                        <i class="fas fa-camera mr-2 text-cyan-400"></i>
+                        Upload Setup Image
+                    </h3>
+                    
+                    <!-- Drop Zone -->
+                    <div 
+                        class="border-2 border-dashed border-gray-600 rounded-xl p-8 text-center transition-all cursor-pointer hover:border-blue-500 hover:bg-gray-700/50"
+                        :class="{ 'border-blue-500 bg-blue-500/10': isDragging, 'border-green-500 bg-green-500/10': imagePreview }"
+                        @dragover.prevent="isDragging = true"
+                        @dragleave.prevent="isDragging = false"
+                        @drop.prevent="handleDrop($event)"
+                        @click="$refs.fileInput.click()"
+                    >
+                        <input 
+                            type="file" 
+                            x-ref="fileInput" 
+                            @change="handleFileSelect($event)" 
+                            accept="image/png,image/jpeg,image/gif,image/webp"
+                            class="hidden"
+                        >
+                        
+                        <template x-if="!imagePreview">
+                            <div>
+                                <i class="fas fa-cloud-upload-alt text-5xl text-gray-500 mb-4"></i>
+                                <p class="text-gray-400 mb-2">Drag & drop your image here</p>
+                                <p class="text-gray-500 text-sm">or click to browse</p>
+                                <p class="text-gray-600 text-xs mt-4">Supported: PNG, JPEG, GIF, WEBP (max 10MB)</p>
+                            </div>
+                        </template>
+                        
+                        <template x-if="imagePreview">
+                            <div>
+                                <img :src="imagePreview" class="max-h-64 mx-auto rounded-lg shadow-lg mb-4" alt="Preview">
+                                <p class="text-green-400 text-sm">
+                                    <i class="fas fa-check-circle mr-1"></i>
+                                    <span x-text="fileName"></span>
+                                </p>
+                                <button 
+                                    @click.stop="clearImage()" 
+                                    class="mt-2 text-red-400 hover:text-red-300 text-sm"
+                                >
+                                    <i class="fas fa-times mr-1"></i> Remove
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Custom Question Card -->
+                <div class="bg-gray-800 rounded-xl border border-gray-700 p-6">
+                    <h3 class="text-lg font-bold text-gray-100 mb-4 flex items-center">
+                        <i class="fas fa-question-circle mr-2 text-purple-400"></i>
+                        Additional Question (Optional)
+                    </h3>
+                    <textarea 
+                        x-model="customQuestion"
+                        placeholder="Ask a specific question about your trial setup... (e.g., 'Is the equipment spacing adequate for patient safety?')"
+                        class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 placeholder-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none"
+                        rows="3"
+                    ></textarea>
+                </div>
+
+                <!-- Analyze Button -->
+                <button 
+                    @click="analyzeSetup()"
+                    :disabled="!imageFile || analyzing"
+                    class="w-full gradient-bg text-white py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg"
+                >
+                    <template x-if="!analyzing">
+                        <span>
+                            <i class="fas fa-robot mr-2"></i>
+                            <span x-text="analysisResult ? 'Re-Analyze Setup with AI' : 'Analyze Setup with AI'"></span>
+                        </span>
+                    </template>
+                    <template x-if="analyzing">
+                        <span>
+                            <i class="fas fa-spinner fa-spin mr-2"></i>
+                            Analyzing... Please wait
+                        </span>
+                    </template>
+                </button>
+                
+                <!-- Hint for re-analysis -->
+                <template x-if="analysisResult && !imageFile">
+                    <p class="text-center text-gray-500 text-sm">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Upload a new image above to perform a new analysis
+                    </p>
+                </template>
+
+                <!-- Info Card -->
+                <div class="bg-amber-900/30 border border-amber-500/50 rounded-xl p-4">
+                    <h4 class="font-bold text-amber-400 mb-2 flex items-center">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        What will be analyzed?
+                    </h4>
+                    <ul class="text-amber-200/80 text-sm space-y-1">
+                        <li><i class="fas fa-check text-green-400 mr-2"></i> Setup appropriateness for trial type</li>
+                        <li><i class="fas fa-check text-green-400 mr-2"></i> Ethical considerations & patient safety</li>
+                        <li><i class="fas fa-check text-green-400 mr-2"></i> Potential risks and issues</li>
+                        <li><i class="fas fa-check text-green-400 mr-2"></i> GCP compliance indicators</li>
+                        <li><i class="fas fa-check text-green-400 mr-2"></i> Recommendations for improvement</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Right Column: Analysis Results -->
+            <div>
+                <!-- Results Card -->
+                <div class="bg-gray-800 rounded-xl border border-gray-700 p-6 min-h-[500px]">
+                    <h3 class="text-xl font-bold text-gray-100 mb-4 flex items-center">
+                        <i class="fas fa-brain mr-2 text-purple-400"></i>
+                        AI Analysis Results
+                    </h3>
+                    
+                    <!-- Empty State -->
+                    <template x-if="!analysisResult && !analyzing && !error">
+                        <div class="flex flex-col items-center justify-center h-96 text-center">
+                            <i class="fas fa-image text-6xl text-gray-600 mb-4"></i>
+                            <p class="text-gray-500 mb-2">No analysis yet</p>
+                            <p class="text-gray-600 text-sm">Upload an image and click "Analyze Setup" to get AI-powered insights</p>
+                        </div>
+                    </template>
+                    
+                    <!-- Loading State -->
+                    <template x-if="analyzing">
+                        <div class="flex flex-col items-center justify-center h-96 text-center">
+                            <div class="relative">
+                                <div class="animate-spin rounded-full h-20 w-20 border-4 border-blue-500 border-t-transparent"></div>
+                                <i class="fas fa-robot text-2xl text-blue-400 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></i>
+                            </div>
+                            <p class="text-blue-400 mt-6 font-semibold">Analyzing your setup...</p>
+                            <p class="text-gray-500 text-sm mt-2">Claude Sonnet 4.5 is reviewing the image</p>
+                        </div>
+                    </template>
+                    
+                    <!-- Error State -->
+                    <template x-if="error && !analyzing">
+                        <div class="bg-red-900/30 border border-red-500/50 rounded-lg p-6 text-center">
+                            <i class="fas fa-exclamation-triangle text-4xl text-red-400 mb-4"></i>
+                            <p class="text-red-400 font-semibold mb-2">Analysis Failed</p>
+                            <p class="text-red-300/80 text-sm" x-text="error"></p>
+                            <button 
+                                @click="error = null" 
+                                class="mt-4 text-red-400 hover:text-red-300 text-sm"
+                            >
+                                <i class="fas fa-times mr-1"></i> Dismiss
+                            </button>
+                        </div>
+                    </template>
+                    
+                    <!-- Results Display -->
+                    <template x-if="analysisResult && !analyzing">
+                        <div class="space-y-4">
+                            <!-- Previous Analysis Badge -->
+                            <template x-if="!imageFile && imagePreview">
+                                <div class="bg-blue-900/30 border border-blue-500/50 rounded-lg px-3 py-2 text-sm text-blue-300 flex items-center">
+                                    <i class="fas fa-history mr-2"></i>
+                                    Previous analysis loaded. Upload a new image to re-analyze.
+                                </div>
+                            </template>
+                            
+                            <!-- Meta Info -->
+                            <div class="flex items-center justify-between text-sm text-gray-500 pb-4 border-b border-gray-700">
+                                <span>
+                                    <i class="fas fa-clock mr-1"></i>
+                                    <span x-text="new Date(analysisResult.timestamp).toLocaleString()"></span>
+                                </span>
+                                <span>
+                                    <i class="fas fa-microchip mr-1"></i>
+                                    <span x-text="analysisResult.model"></span>
+                                </span>
+                            </div>
+                            
+                            <!-- Analysis Content -->
+                            <div class="prose prose-invert prose-sm max-w-none overflow-y-auto max-h-[600px] pr-2">
+                                <div x-html="formatMarkdown(analysisResult.analysis)"></div>
+                            </div>
+                            
+                            <!-- Actions -->
+                            <div class="flex items-center justify-between pt-4 border-t border-gray-700">
+                                <button 
+                                    @click="copyAnalysis()" 
+                                    class="text-blue-400 hover:text-blue-300 text-sm font-semibold transition"
+                                >
+                                    <i class="fas fa-copy mr-1"></i> Copy Analysis
+                                </button>
+                                <button 
+                                    @click="downloadAnalysis()" 
+                                    class="text-green-400 hover:text-green-300 text-sm font-semibold transition"
+                                >
+                                    <i class="fas fa-download mr-1"></i> Download Report
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+    function setupAnalyzer() {
+        return {
+            simulationId: '{{ simulation_id }}',
+            simulationData: null,
+            imageFile: null,
+            imagePreview: null,
+            fileName: '',
+            isDragging: false,
+            customQuestion: '',
+            analyzing: false,
+            analysisResult: null,
+            error: null,
+            
+            async init() {
+                await this.loadSimulationData();
+                await this.loadPreviousAnalysis();
+            },
+            
+            async loadSimulationData() {
+                try {
+                    const response = await fetch(`/api/simulation/${this.simulationId}`);
+                    if (response.ok) {
+                        this.simulationData = await response.json();
+                    }
+                } catch (e) {
+                    console.error('Failed to load simulation data:', e);
+                }
+            },
+            
+            async loadPreviousAnalysis() {
+                try {
+                    const response = await fetch(`/api/simulation/${this.simulationId}/setup-analysis`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data && data.analysis) {
+                            // Restore previous analysis result
+                            this.analysisResult = {
+                                analysis: data.analysis,
+                                timestamp: data.timestamp,
+                                model: data.model || 'claude-sonnet-4-5'
+                            };
+                            
+                            // Restore image preview if available
+                            if (data.image_base64) {
+                                const mediaType = data.image_media_type || 'image/png';
+                                this.imagePreview = `data:${mediaType};base64,${data.image_base64}`;
+                                this.fileName = data.image_filename || 'Previous upload';
+                            }
+                            
+                            // Restore custom question if available
+                            if (data.custom_question) {
+                                this.customQuestion = data.custom_question;
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to load previous analysis:', e);
+                }
+            },
+            
+            handleFileSelect(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.processFile(file);
+                }
+            },
+            
+            handleDrop(event) {
+                this.isDragging = false;
+                const file = event.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    this.processFile(file);
+                }
+            },
+            
+            processFile(file) {
+                // Validate file size (10MB max)
+                if (file.size > 10 * 1024 * 1024) {
+                    this.error = 'File too large. Maximum size is 10MB.';
+                    return;
+                }
+                
+                // Validate file type
+                const allowedTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
+                if (!allowedTypes.includes(file.type)) {
+                    this.error = 'Invalid file type. Please upload PNG, JPEG, GIF, or WEBP.';
+                    return;
+                }
+                
+                this.imageFile = file;
+                this.fileName = file.name;
+                this.error = null;
+                
+                // Create preview
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.imagePreview = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            },
+            
+            clearImage() {
+                this.imageFile = null;
+                this.imagePreview = null;
+                this.fileName = '';
+                this.$refs.fileInput.value = '';
+            },
+            
+            async analyzeSetup() {
+                if (!this.imageFile) {
+                    this.error = 'Please upload an image first.';
+                    return;
+                }
+                
+                this.analyzing = true;
+                this.error = null;
+                this.analysisResult = null;
+                
+                try {
+                    const formData = new FormData();
+                    formData.append('image', this.imageFile);
+                    if (this.customQuestion) {
+                        formData.append('custom_question', this.customQuestion);
+                    }
+                    
+                    const response = await fetch(`/api/simulation/${this.simulationId}/analyze-setup`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.detail || 'Analysis failed');
+                    }
+                    
+                    this.analysisResult = await response.json();
+                    
+                } catch (e) {
+                    console.error('Analysis error:', e);
+                    this.error = e.message || 'Failed to analyze setup. Please try again.';
+                } finally {
+                    this.analyzing = false;
+                }
+            },
+            
+            formatMarkdown(text) {
+                if (!text) return '';
+                try {
+                    return marked.parse(text);
+                } catch (e) {
+                    return text.replace(/\n/g, '<br>');
+                }
+            },
+            
+            async copyAnalysis() {
+                if (this.analysisResult?.analysis) {
+                    try {
+                        await navigator.clipboard.writeText(this.analysisResult.analysis);
+                        alert('Analysis copied to clipboard!');
+                    } catch (e) {
+                        console.error('Copy failed:', e);
+                    }
+                }
+            },
+            
+            downloadAnalysis() {
+                if (!this.analysisResult) return;
+                
+                const content = `# Clinical Trial Setup Analysis Report
+                
+## Simulation: ${this.simulationId}
+## Generated: ${new Date(this.analysisResult.timestamp).toLocaleString()}
+## Model: ${this.analysisResult.model}
+
+---
+
+${this.analysisResult.analysis}
+
+---
+Generated by Clinic-Buddy - Clinical Trial Simulator & Predictor
+`;
+                
+                const blob = new Blob([content], { type: 'text/markdown' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `setup-analysis-${this.simulationId}.md`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+        };
+    }
+</script>
+{% endblock %}

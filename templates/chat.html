@@ -25,6 +25,7 @@
                         <select id="languageSelector" onchange="changeLanguageMode()" class="px-4 py-2 bg-gray-700 text-blue-300 rounded-lg font-semibold border border-gray-600 focus:border-blue-400 focus:outline-none cursor-pointer hover:bg-gray-600 transition">
                             <option value="auto">Auto Detect</option>
                             <option value="en">English</option>
+                            <option value="ms">Bahasa Melayu</option>
                             <option value="hi">Hindi</option>
                             <option value="bn">Bengali</option>
                             <option value="es">Español</option>
@@ -83,11 +84,11 @@
                                     <ul class="mt-2 space-y-1 text-sm text-gray-300">
                                         <li>- View and manage your simulations</li>
                                         <li>- Update simulation parameters</li>
-                                        <li>- Translate data to Hindi, Bengali, or other languages</li>
+                                        <li>- Translate data to Malay, Hindi, Bengali, or other languages</li>
                                         <li>- Explain results and statistics</li>
                                     </ul>
                                     <p class="mt-3 text-sm text-gray-400">
-                                        <strong class="text-gray-300">Tip:</strong> You can chat in English, Hindi, Bengali, or any language supported by the AI!
+                                        <strong class="text-gray-300">Tip:</strong> You can chat in English, Malay, Hindi, Bengali, or any language supported by the AI!
                                     </p>
                                 </div>
                                 <span class="text-xs text-gray-500 mt-1 block">Just now</span>
@@ -209,6 +210,7 @@
     const languageNames = {
         'auto': '🌐 Auto Detect',
         'en': 'English',
+        'ms': 'Bahasa Melayu (Malay)',
         'hi': 'हिंदी (Hindi)',
         'bn': 'বাংলা (Bengali)',
         'es': 'Español',

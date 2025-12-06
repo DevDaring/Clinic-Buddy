@@ -13,13 +13,16 @@ logger = logging.getLogger(__name__)
 # Check if boto3 is available
 BOTO3_AVAILABLE = False
 boto3 = None  # type: ignore
+Config = None  # type: ignore
 ClientError = Exception  # Fallback for type checking
 
 try:
     import boto3 as _boto3  # type: ignore
     from botocore.exceptions import ClientError as _ClientError
+    from botocore.config import Config as _Config
     boto3 = _boto3
     ClientError = _ClientError
+    Config = _Config
     BOTO3_AVAILABLE = True
 except ImportError:
     logger.warning("boto3 library not available. AWS Bedrock features will be limited.")
@@ -39,11 +42,19 @@ class AWSBedrockClient:
             return
         
         try:
+            # Configure longer timeout for image analysis (300 seconds = 5 minutes)
+            config = Config(
+                read_timeout=300,
+                connect_timeout=60,
+                retries={'max_attempts': 3}
+            ) if Config else None
+            
             self.client = boto3.client(
                 "bedrock-runtime",
                 region_name=os.getenv("AWS_REGION", "us-east-1"),
                 aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID", ""),
-                aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY", "")
+                aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY", ""),
+                config=config
             )
             
             # Model IDs for Sonnet models
@@ -136,6 +147,93 @@ class AWSBedrockClient:
         except Exception as e:
             logger.error(f"AWS Bedrock text generation error: {e}")
             raise Exception(f"Error generating text via AWS Bedrock: {str(e)}")
+    
+    def generate_with_image(
+        self,
+        prompt: str,
+        image_base64: str,
+        model_name: str = "claude-4.5-sonnet",
+        max_tokens: int = 4096,
+        temperature: float = 0.7,
+        system_instruction: Optional[str] = None,
+        image_media_type: str = "image/png",
+    ) -> str:
+        """
+        Generate response from AWS Bedrock Claude Sonnet with image input (multimodal).
+
+        Args:
+            prompt: Text prompt to send with the image
+            image_base64: Base64 encoded image data
+            model_name: Model identifier (default: claude-4.5-sonnet)
+            max_tokens: Maximum tokens to generate
+            temperature: Sampling temperature (0-1)
+            system_instruction: Optional system instruction for the model
+            image_media_type: MIME type of image (image/png, image/jpeg, image/gif, image/webp)
+            
+        Returns:
+            Generated text response analyzing the image
+        """
+        if not self.is_available:
+            raise RuntimeError("AWS Bedrock client not available or not initialized")
+
+        model_id = self.models.get(model_name)
+        if not model_id:
+            raise ValueError(f"Unknown model: {model_name}. Available: {list(self.models.keys())}")
+
+        try:
+            # Build multimodal content: image + text
+            content: list = [
+                {
+                    "type": "image",
+                    "source": {
+                        "type": "base64",
+                        "media_type": image_media_type,
+                        "data": image_base64,
+                    },
+                },
+                {"type": "text", "text": prompt}
+            ]
+
+            # Build request body
+            body: Dict[str, Any] = {
+                "anthropic_version": "bedrock-2023-05-31",
+                "max_tokens": max_tokens,
+                "temperature": temperature,
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": content,
+                    }
+                ],
+            }
+
+            # Add system instruction if provided
+            if system_instruction:
+                body["system"] = system_instruction
+
+            logger.debug(f"Calling AWS Bedrock (multimodal) with model: {model_id}")
+
+            response = self.client.invoke_model(
+                modelId=model_id,
+                body=json.dumps(body),
+                contentType="application/json",
+                accept="application/json",
+            )
+
+            result = json.loads(response["body"].read())
+            generated_text = result["content"][0]["text"].strip()
+            logger.info(f"✅ AWS Bedrock multimodal response received: {len(generated_text)} chars")
+
+            return generated_text
+
+        except ClientError as e:
+            error_code = getattr(e, "response", {}).get("Error", {}).get("Code", "Unknown") if hasattr(e, "response") else "Unknown"
+            error_message = getattr(e, "response", {}).get("Error", {}).get("Message", str(e)) if hasattr(e, "response") else str(e)
+            logger.error(f"AWS Bedrock API error ({error_code}): {error_message}")
+            raise Exception(f"AWS Bedrock API error: {error_message}")
+        except Exception as e:
+            logger.error(f"AWS Bedrock multimodal generation error: {e}")
+            raise Exception(f"Error generating multimodal response via AWS Bedrock: {str(e)}")
     
     def generate_with_history(
         self,
